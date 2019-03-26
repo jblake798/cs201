@@ -244,21 +244,14 @@ int main (void)
       noecho();
       keypad( gameWindow, TRUE );
       oldcur = curs_set(0);
-      
 
-      printf("\nI AM HERE\n");
-      
+      // create board with set dimensions
       homeNode = CreateBoard( boardRows, boardCols );
 
-      printf("\nNOW I AM HERE\n");
-
-      DropToken( homeNode, 2, ONE );
-      DropToken( homeNode, 2, TWO );
-      DropToken( homeNode, 5, ONE );
-
-      printf("\nAND NOW I AM HERE\n");
-
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols );
+
+      mvwaddstr( gameWindow, 0, 0, "ORIGIN");
+      refresh();
       
 
       while(1);

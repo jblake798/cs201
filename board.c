@@ -168,8 +168,8 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
   char rowString[ boardCols * 2 ];
 
   // calculate location of homeNode (X, Y)
-  int homeNodeX = ( ( termCols / 2 ) - ( boardCols / 2 ) );
-  int homeNodeY = ( ( termRows / 2 ) - ( boardRows / 2 ) );
+  int homeNodeX = ( ( termCols / 2 ) - ( boardCols ) );
+  int homeNodeY = ( ( termRows / 2 ) + ( boardRows / 2 ) );
 
   // bound from negative to prevent ncurses print error
   if ( homeNodeX < 0 ) homeNodeX = 0;
@@ -183,7 +183,7 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
     
     // remember next column
     nextRowNode = currentNode->above;
-
+    
     // reset rowString
     rowString[0] = '\0';
     
@@ -191,11 +191,11 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
       
       // add node owner to string
       if ( *currentNode->owner == ONE ) strcat( rowString, "A " );
-      if ( *currentNode->owner == TWO ) strcat( rowString, "B " );
+      else if ( *currentNode->owner == TWO ) strcat( rowString, "B " );
       else strcat( rowString, "0 " );
 
       // move to next node
-      currentNode = currentNode->above;
+      currentNode = currentNode->right;
     }
 
     // print created row string to window
@@ -203,7 +203,7 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
     refresh();
 
     // if top of window has not been reached, increment y
-    if ( y < termRows ) ++y;
+    if ( y < termRows ) --y;
 
     // move to next column
     currentNode = nextRowNode;
