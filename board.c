@@ -158,7 +158,8 @@ int DropToken(BoardNode * homeNode, int column, PLAYER player)
 /*  Print game board graph structure  */
 
 void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
-		WINDOW * window, int termRows, int termCols)
+		WINDOW * window, int termRows, int termCols,
+		int cursorCol)
 {
   // pointers for graph navigation
   BoardNode * currentNode = homeNode;
@@ -170,7 +171,7 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
 
   // bound to prevent ncurses print error
   if ( homeNodeX < 0 ) homeNodeX = 0;
-  if ( homeNodeY > ( termRows - 2 ) ) homeNodeY = ( termRows - 2 );
+  if ( homeNodeY > ( termRows - 1 ) ) homeNodeY = ( termRows - 1 );
 
   // set incrementers for print corrdinates
   int y = homeNodeY;
@@ -179,7 +180,23 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
   init_pair(1, COLOR_RED, COLOR_BLACK);
   init_pair(2, COLOR_GREEN, COLOR_BLACK);
 
-  // TODO ADD THESE BEFORE AND AFTER PRINTING CHARACTERS
+  // print cursor to screen first
+  // keep column within bounds
+  if ( cursorCol < 0 ) cursorCol = 0;
+  if ( cursorCol > ( boardCols - 1 ) ) cursorCol = ( boardCols - 1 );
+
+  // print cursor row
+  for ( int i = 0 ; i < boardCols ; i++ ) {
+    if ( x != homeNodeX ) mvwaddch( window, y, x++, ' ' );
+    if ( i == cursorCol ) mvwaddch( window, y, x++, '^' );
+    else mvwaddch( window, y, x++, ' ' );
+  }
+
+  // if top of window has not been reached, increment y
+  if ( y < termRows ) --y;
+
+  // reset x to start of row
+  x = homeNodeX;  
 
   // progress through graph, printing owners as you go
   while ( currentNode != NULL ) {

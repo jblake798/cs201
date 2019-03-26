@@ -39,7 +39,7 @@ BoardNode * CreateBoard(int, int);
 BoardNode * NewNode();
 
 int DropToken(BoardNode *, int, PLAYER);
-void PrintBoard(BoardNode *, int, int, WINDOW *, int, int);
+void PrintBoard(BoardNode *, int, int, WINDOW *, int, int, int);
 
 PLAYER IsWinner(BoardNode *);
 

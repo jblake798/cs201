@@ -206,7 +206,7 @@ int main (void)
       // TODO MAKE SURE TERMINAL ALLOWED SIZE IS CORRECT
       if ( ( boardRows > ( termRows - 2 ) ) || ( ( ( 2 * boardCols ) - 1 ) > termCols ) ) {
 	printf("\nWARNING: TERMINAL WINDOW IS NOT LARGE ENOUGH TO PROPERLY DISPLAY BOARD");
-	printf("\nCURRENT ALLOWED SIZE: %d x %d", ( termRows - 2 ), ( termCols / 2 ) );
+	printf("\nCURRENT ALLOWED SIZE: %d x %d", ( termRows - 2 ), ( ( termCols / 2 ) + 1 ) );
 	printf("\nVISUAL ERRORS MAY OCCUR\n");
       }
 
@@ -260,16 +260,14 @@ int main (void)
       // create board with set dimensions
       homeNode = CreateBoard( boardRows, boardCols );
 
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols );
-
       if ( DropToken( homeNode, 1, ONE ) == -1 ) printf("COLUMN DOESNT EXIST");
       for ( int i = 0 ; i < 59 ; i++ )
 	if ( DropToken( homeNode, 51, TWO ) == -1 ) printf("COLUMN DOESNT EXIST");
       if ( DropToken( homeNode, 102, TWO ) == -1 ) printf("COLUMN DOESNT EXIST");
 
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols );
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, 1 );
 
-      mvwaddstr( gameWindow, 0, 0, "PRESS 'p' TO PAUSE");
+      mvwaddstr( gameWindow, 0, 0, "PRESS 'q' TO RETURN TO MENU");
       refresh();
       
 
