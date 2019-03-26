@@ -32,8 +32,14 @@ BoardNode * CreateBoard(int rows, int columns)
 
 BoardNode * NewNode()
 {
+  // allocate memory for node
   BoardNode * newNode = (BoardNode *) malloc( sizeof(BoardNode) );
+
+  // allocate memory for player variable
   newNode->owner = (PLAYER *) malloc( sizeof(PLAYER) );
+  *newNode->owner = NONE;
+
+  // initialize pointers to NULL
   newNode->above      = NULL;
   newNode->below      = NULL;
   newNode->left       = NULL;
@@ -51,6 +57,31 @@ BoardNode * NewNode()
 
 int DropToken(BoardNode * homeNode, int column, PLAYER player)
 {
+  // pointer for graph navigation
+  BoardNode * currentNode = homeNode;
+
+  // navigate to desired column
+  for ( int i = 1 ; i < column ; i++ ) {
+    currentNode = currentNode->right;
+
+    // if column does not exist, report error
+    if ( currentNode == NULL ) return -1;
+  }
+
+  // move up column until empty node found. change ownership when found
+  while ( currentNode != NULL ) {
+    if ( *currentNode->owner == NONE ) {
+      *currentNode->owner = player;
+      return 1;
+    }
+    currentNode = currentNode->above;
+  }
+
+  // catch if pointer reached top of column without finding empty node
+  if ( currentNode == NULL ) return 0;
+
+  // code should never reach this point
+  return -2;
 
 }
 
