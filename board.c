@@ -88,7 +88,8 @@ int DropToken(BoardNode * homeNode, int column, PLAYER player)
 
 /*  Print game board graph structure  */
 
-void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols, WINDOW * window, int termRows, int termCols)
+void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
+		WINDOW * window, int termRows, int termCols)
 {
 
 }
@@ -106,5 +107,33 @@ PLAYER IsWinner(BoardNode * homeNode)
 
 void FreeBoard(BoardNode * homeNode)
 {
+  // pointer for graph navigation
+  BoardNode * currentNode = homeNode;
+  BoardNode * nextNode;
+  BoardNode * nextColNode;
 
+  // progress through graph, delete every node passed
+  while ( currentNode != NULL ) {
+    
+    // remember next column
+    nextColNode = currentNode->right;
+    
+    while ( currentNode != NULL ) {
+      // remember next node
+      nextNode = currentNode->above;
+
+      // delete current node
+      free( currentNode->owner );
+      free( currentNode );
+
+      // move to next node
+      currentNode = nextNode;
+    }
+
+    // move to next column
+    currentNode = nextColNode;
+  }
+
+  return;
+  
 }
