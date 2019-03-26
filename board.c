@@ -36,10 +36,10 @@ BoardNode * CreateBoard(int rows, int columns)
 
   for ( int j = 0 ; j < ( columns - 1 ) ; j++ ) {
 
-    for ( int i = 0 ; i < ( rows - 1 ) ; i++ ) {
+    // move pointer to root of new column
+    currentNode = rootColNode;
 
-      // move pointer to root of new column
-      currentNode = rootColNode;
+    for ( int i = 0 ; i < ( rows - 1 ) ; i++ ) {
 
       // create new node
       newNode = NewNode();
@@ -69,11 +69,10 @@ BoardNode * CreateBoard(int rows, int columns)
 
       // move pointer to new node
       currentNode = newNode;
-      
     }
 
     // start new column to right if necessary
-    if ( j != ( columns - 1 ) ) {
+    if ( j != ( columns - 2 ) ) {
       
       // create root of next column
       newNode = NewNode();

@@ -190,7 +190,7 @@ int main (void)
 	status = scanf("%d", &boardCols);
       }
 
-      printf("\nBoard will be %d x %d", boardRows, boardCols);
+      printf("\nBoard will be %d x %d\n", boardRows, boardCols);
 
       int termRows, termCols;
       UpdateTermSize( &termRows, &termCols );
@@ -233,7 +233,7 @@ int main (void)
 
 
     case GAME_WINDOW:
-
+      
       // initialize ncurses and create game window
 
       if ( ( gameWindow = initscr() ) == NULL ) {
@@ -244,18 +244,22 @@ int main (void)
       noecho();
       keypad( gameWindow, TRUE );
       oldcur = curs_set(0);
-
-      homeNode = CreateBoard( boardRows, boardCols );
+      
 
       printf("\nI AM HERE\n");
+      
+      homeNode = CreateBoard( boardRows, boardCols );
+
+      printf("\nNOW I AM HERE\n");
 
       DropToken( homeNode, 2, ONE );
       DropToken( homeNode, 2, TWO );
       DropToken( homeNode, 5, ONE );
 
-      printf("\nNOW I AM HERE\n");
+      printf("\nAND NOW I AM HERE\n");
 
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols );
+      
 
       while(1);
 
