@@ -202,10 +202,11 @@ int main (void)
 
       int termRows, termCols;
       UpdateTermSize( &termRows, &termCols );
-      
-      if ( ( boardRows > ( termRows - 2 ) ) || ( ( 2 * boardCols ) > termCols ) ) {
+
+      // TODO MAKE SURE TERMINAL ALLOWED SIZE IS CORRECT
+      if ( ( boardRows > ( termRows - 2 ) ) || ( ( ( 2 * boardCols ) - 1 ) > termCols ) ) {
 	printf("\nWARNING: TERMINAL WINDOW IS NOT LARGE ENOUGH TO PROPERLY DISPLAY BOARD");
-	printf("\nCURRENT ALLOWED SIZE: %d x %d", ( termRows - 2 ), ( ( 2 * termCols ) - 1 ) );
+	printf("\nCURRENT ALLOWED SIZE: %d x %d", ( termRows - 2 ), ( termCols / 2 ) );
 	printf("\nVISUAL ERRORS MAY OCCUR\n");
       }
 
@@ -224,7 +225,6 @@ int main (void)
 
 	if ( strcmp( input, "yes" ) == 0 ) {
 	  state = GAME_WINDOW;
-	  printf("\nHEEEEEEREEEEE WEEEEEEE GOOOO!\n");
 	} else if ( strcmp( input, "no" ) == 0 ) {
 	  state = INITIALIZATION;
 	  printf("\nGoing back to initial menu...\n");
@@ -249,16 +249,27 @@ int main (void)
 	exit(EXIT_FAILURE);
       }
 
+      if(has_colors() == FALSE)
+	printf("\nNOTE :: Your terminal does not support color\n");
+
       noecho();
       keypad( gameWindow, TRUE );
       oldcur = curs_set(0);
+      start_color();
 
       // create board with set dimensions
       homeNode = CreateBoard( boardRows, boardCols );
 
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols );
 
-      mvwaddstr( gameWindow, 0, 0, "ORIGIN");
+      if ( DropToken( homeNode, 1, ONE ) == -1 ) printf("COLUMN DOESNT EXIST");
+      for ( int i = 0 ; i < 59 ; i++ )
+	if ( DropToken( homeNode, 51, TWO ) == -1 ) printf("COLUMN DOESNT EXIST");
+      if ( DropToken( homeNode, 102, TWO ) == -1 ) printf("COLUMN DOESNT EXIST");
+
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols );
+
+      mvwaddstr( gameWindow, 0, 0, "PRESS 'p' TO PAUSE");
       refresh();
       
 

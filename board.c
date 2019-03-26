@@ -34,7 +34,7 @@ BoardNode * CreateBoard(int rows, int columns)
   BoardNode * leftHelperNode = NULL;
   BoardNode * newNode = NULL;
 
-  for ( int j = 0 ; j < ( columns - 1 ) ; j++ ) {
+  for ( int j = 0 ; j < columns ; j++ ) {
 
     // move pointer to root of new column
     currentNode = rootColNode;
@@ -72,7 +72,7 @@ BoardNode * CreateBoard(int rows, int columns)
     }
 
     // start new column to right if necessary
-    if ( j != ( columns - 2 ) ) {
+    if ( j != ( columns - 1 ) ) {
       
       // create root of next column
       newNode = NewNode();
@@ -164,46 +164,61 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
   BoardNode * currentNode = homeNode;
   BoardNode * nextRowNode;
 
-  // string to hold row values
-  char rowString[ boardCols * 2 ];
-
   // calculate location of homeNode (X, Y)
   int homeNodeX = ( ( termCols / 2 ) - ( boardCols ) );
   int homeNodeY = ( ( termRows / 2 ) + ( boardRows / 2 ) );
 
-  // bound from negative to prevent ncurses print error
+  // bound to prevent ncurses print error
   if ( homeNodeX < 0 ) homeNodeX = 0;
-  if ( homeNodeY < 0 ) homeNodeY = 0;
+  if ( homeNodeY > ( termRows - 2 ) ) homeNodeY = ( termRows - 2 );
 
-  // set incrementer for printing rows
+  // set incrementers for print corrdinates
   int y = homeNodeY;
+  int x = homeNodeX;
 
-  // progress through graph, delete every node passed
+  init_pair(1, COLOR_RED, COLOR_BLACK);
+  init_pair(2, COLOR_GREEN, COLOR_BLACK);
+
+  // TODO ADD THESE BEFORE AND AFTER PRINTING CHARACTERS
+
+  // progress through graph, printing owners as you go
   while ( currentNode != NULL ) {
     
     // remember next column
     nextRowNode = currentNode->above;
-    
-    // reset rowString
-    rowString[0] = '\0';
-    
+        
     while ( currentNode != NULL ) {
+
+      // print space if not the first character
+      if ( x != homeNodeX ) mvwaddch( window, y, x++, ' ' );
       
-      // add node owner to string
-      if ( *currentNode->owner == ONE ) strcat( rowString, "A " );
-      else if ( *currentNode->owner == TWO ) strcat( rowString, "B " );
-      else strcat( rowString, "0 " );
+      // print owner in next space
+      if ( *currentNode->owner == ONE ) {
+	
+	attron( COLOR_PAIR(1) );
+	mvwaddch( window, y, x++, '1' );
+	attroff( COLOR_PAIR(1) );
+	
+      } else if ( *currentNode->owner == TWO ) {
+	
+       	attron( COLOR_PAIR(2) );
+	mvwaddch( window, y, x++, '2' );
+	attroff( COLOR_PAIR(2) );
+	
+      } else
+	mvwaddch( window, y, x++, '0' );
 
       // move to next node
       currentNode = currentNode->right;
     }
 
-    // print created row string to window
-    mvwaddstr( window, y, homeNodeX, rowString );
     refresh();
 
     // if top of window has not been reached, increment y
     if ( y < termRows ) --y;
+
+    // reset x to start of row
+    x = homeNodeX;
 
     // move to next column
     currentNode = nextRowNode;
