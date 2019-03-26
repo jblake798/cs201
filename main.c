@@ -81,7 +81,8 @@ int main (void)
 	char input[32];
 	fgets( input, 31, stdin );
 	input[ strlen(input) - 1 ] = '\0';
- 
+
+	// check input and change state if valid
 	if ( strcmp( input, "begin" ) == 0 )       state = GAME_CONFIG;
 	else if ( strcmp( input, "config" ) == 0 ) state = PROG_CONFIG;
 	else if ( strcmp( input, "quit" ) == 0 )   state = QUIT;
@@ -122,6 +123,7 @@ int main (void)
 	fgets( input, 31, stdin );
 	input[ strlen(input) - 1 ] = '\0';
 
+	// check input and set players if valid
 	if ( strcmp( input, "one" ) == 0 )      players = 1;
 	else if ( strcmp( input, "two" ) == 0 ) players = 2;
 	else
@@ -132,6 +134,7 @@ int main (void)
 	  }
       }
 
+      // informative output
       if ( players == 1 ) printf("\nYou are player one!\nThe computer is player two!\n");
       else if ( players == 2 ) printf("\nPlayer one and player two will take turns with the keyboard!\nHonor system!\n");
 
@@ -149,6 +152,7 @@ int main (void)
 	fgets( input, 31, stdin );
 	input[ strlen(input) - 1 ] = '\0';
 
+	// check input and set player appropriately
 	if ( strcmp( input, "one" ) == 0 ) turn = ONE;
 	else if ( strcmp( input, "two" ) == 0 ) turn = TWO;
 	else if ( strcmp( input, "random" ) == 0 ) {
@@ -162,6 +166,7 @@ int main (void)
 	  }
       }
 
+      // informative output
       if ( turn == ONE ) printf("\nPlayer one will go first!\n");
       else if ( turn == TWO ) printf("\nPlayer two will go first!\n");
 
@@ -169,7 +174,8 @@ int main (void)
       // size of board
 
       printf("\nEnter size of board... (The standard board size is 6x7)");
-      
+
+      // get number of rows
       printf("\nRows: ");
       int boardRows;
       int status = scanf("%d", &boardRows);
@@ -180,6 +186,7 @@ int main (void)
 	status = scanf("%d", &boardRows);
       }
 
+      // get number of columns
       printf("Columns: ");
       int boardCols;
       status = scanf("%d", &boardCols);
@@ -190,14 +197,15 @@ int main (void)
 	status = scanf("%d", &boardCols);
       }
 
+      // informative output
       printf("\nBoard will be %d x %d\n", boardRows, boardCols);
 
       int termRows, termCols;
       UpdateTermSize( &termRows, &termCols );
       
-      if ( ( boardRows > termRows ) || ( boardCols > termCols ) ) {
+      if ( ( boardRows > ( termRows - 2 ) ) || ( ( 2 * boardCols ) > termCols ) ) {
 	printf("\nWARNING: TERMINAL WINDOW IS NOT LARGE ENOUGH TO PROPERLY DISPLAY BOARD");
-	printf("\nTERMINAL SIZE: %d x %d", termRows, termCols);
+	printf("\nCURRENT ALLOWED SIZE: %d x %d", ( termRows - 2 ), ( ( 2 * termCols ) - 1 ) );
 	printf("\nVISUAL ERRORS MAY OCCUR\n");
       }
 
