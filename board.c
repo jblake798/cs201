@@ -24,7 +24,36 @@
 
 BoardNode * CreateBoard(int rows, int columns)
 {
+  BoardNode * homeNode = NewNode();
 
+  // pointers for graph navigation
+  BoardNode * currentNode = homeNode;
+  BoardNode * rootRowNode = homeNode;
+  BoardNode * leftHelperNode;
+
+  for ( int j = 0 ; j < ( columns - 1 ) ; j++ ) {
+
+    for ( int i = 0 ; i < ( rows - 1 ) ; i++ ) {
+
+      // create new node
+      BoardNode * newNode = NewNode();
+
+      // link to current node below
+      newNode->below = currentNode;
+      currentNode->above = newNode;
+
+      // link to nodes in left column if left column present
+      if ( j > 0 ) {
+	
+      }
+
+      
+
+    }
+
+  }
+  
+  return homeNode;
 }
 
 
@@ -91,7 +120,7 @@ int DropToken(BoardNode * homeNode, int column, PLAYER player)
 void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
 		WINDOW * window, int termRows, int termCols)
 {
-
+  return;
 }
 
 
@@ -99,7 +128,7 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
 
 PLAYER IsWinner(BoardNode * homeNode)
 {
-
+  return winner;
 }
 
 
@@ -107,7 +136,7 @@ PLAYER IsWinner(BoardNode * homeNode)
 
 void FreeBoard(BoardNode * homeNode)
 {
-  // pointer for graph navigation
+  // pointers for graph navigation
   BoardNode * currentNode = homeNode;
   BoardNode * nextNode;
   BoardNode * nextColNode;
