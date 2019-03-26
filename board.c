@@ -218,6 +218,7 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
 
 PLAYER IsWinner(BoardNode * homeNode)
 {
+  PLAYER winner = NONE;
   return winner;
 }
 
