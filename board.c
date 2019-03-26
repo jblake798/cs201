@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <string.h>
 #include <curses.h>
 
 #include "helper.h"
@@ -24,36 +25,76 @@
 
 BoardNode * CreateBoard(int rows, int columns)
 {
+  // create homeNode (what board will be referenced by)
   BoardNode * homeNode = NewNode();
 
   // pointers for graph navigation
-  BoardNode * currentNode = homeNode;
-  BoardNode * rootRowNode = homeNode;
-  BoardNode * leftHelperNode;
+  BoardNode * rootColNode = homeNode;
+  BoardNode * currentNode = NULL;
+  BoardNode * leftHelperNode = NULL;
+  BoardNode * newNode = NULL;
 
   for ( int j = 0 ; j < ( columns - 1 ) ; j++ ) {
 
     for ( int i = 0 ; i < ( rows - 1 ) ; i++ ) {
 
+      // move pointer to root of new column
+      currentNode = rootColNode;
+
       // create new node
-      BoardNode * newNode = NewNode();
+      newNode = NewNode();
 
       // link to current node below
       newNode->below = currentNode;
       currentNode->above = newNode;
 
       // link to nodes in left column if left column present
-      if ( j > 0 ) {
-	
+      if ( leftHelperNode != NULL ) {
+	// move helper node up one
+	leftHelperNode = leftHelperNode->above;
+
+	// link new node to below left and left
+	newNode->belowLeft = leftHelperNode->below;
+	leftHelperNode->below->aboveRight = newNode;
+
+	newNode->left = leftHelperNode;
+	leftHelperNode->right = newNode;
+
+	// if node exists, link new node to above left
+	if ( leftHelperNode->above != NULL ) {
+	  newNode->aboveLeft = leftHelperNode->above;
+	  leftHelperNode->above->belowRight = newNode;
+	}
       }
 
+      // move pointer to new node
+      currentNode = newNode;
       
+    }
 
+    // start new column to right if necessary
+    if ( j != ( columns - 1 ) ) {
+      
+      // create root of next column
+      newNode = NewNode();
+
+      // link new node to left and above left
+      newNode->left = rootColNode;
+      rootColNode->right = newNode;
+
+      newNode->aboveLeft = rootColNode->above;
+      rootColNode->above->belowRight = newNode;
+    
+      // move root column pointer and helper over one
+      leftHelperNode = rootColNode;
+      rootColNode = newNode;
     }
 
   }
-  
+
+  // return homeNode of graph to user
   return homeNode;
+  
 }
 
 
@@ -120,6 +161,55 @@ int DropToken(BoardNode * homeNode, int column, PLAYER player)
 void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
 		WINDOW * window, int termRows, int termCols)
 {
+  // pointers for graph navigation
+  BoardNode * currentNode = homeNode;
+  BoardNode * nextRowNode;
+
+  // string to hold row values
+  char rowString[ boardCols * 2 ];
+
+  // calculate location of homeNode (X, Y)
+  int homeNodeX = ( ( termCols / 2 ) - ( boardCols / 2 ) );
+  int homeNodeY = ( ( termRows / 2 ) - ( boardRows / 2 ) );
+
+  // bound from negative to prevent ncurses print error
+  if ( homeNodeX < 0 ) homeNodeX = 0;
+  if ( homeNodeY < 0 ) homeNodeY = 0;
+
+  // set incrementer for printing rows
+  int y = homeNodeY;
+
+  // progress through graph, delete every node passed
+  while ( currentNode != NULL ) {
+    
+    // remember next column
+    nextRowNode = currentNode->above;
+
+    // reset rowString
+    rowString[0] = '\0';
+    
+    while ( currentNode != NULL ) {
+      
+      // add node owner to string
+      if ( *currentNode->owner == ONE ) strcat( rowString, "A " );
+      if ( *currentNode->owner == TWO ) strcat( rowString, "B " );
+      else strcat( rowString, "0 " );
+
+      // move to next node
+      currentNode = currentNode->above;
+    }
+
+    // print created row string to window
+    mvwaddstr( window, y, homeNodeX, rowString );
+    refresh();
+
+    // if top of window has not been reached, increment y
+    if ( y < termRows ) ++y;
+
+    // move to next column
+    currentNode = nextRowNode;
+  }
+  
   return;
 }
 
