@@ -27,13 +27,10 @@
 void Error_Quit(char * msg)
 {
 
-  // Clean up ncurses gui
-
+  // clean up ncurses gui
   CleanUp();
-  
     
-  // Output error message and exit
-
+  // output error message and exit
   perror(msg);
   
   exit(EXIT_FAILURE);
@@ -46,13 +43,10 @@ void Error_Quit(char * msg)
 void Quit(int reason)
 {
 
-  // Clean up ncurses gui
-
+  // clean up ncurses gui
   CleanUp();
-  
 
-  // Output farewell message
-
+  // output farewell message
   switch ( reason ) {
   default:
     printf("\nThanks for playing! Goodbye!\n");
@@ -71,17 +65,13 @@ void UpdateTermSize(int * rows, int * cols)
 
   struct winsize ws;
 
-
-  // Get terminal size
-
+  // get terminal size
   if ( ioctl(0, TIOCGWINSZ, &ws) < 0 ) {
     perror("couldn't get window size");
     exit(EXIT_FAILURE);
   }
     
-
-  // Update globals
-
+  // update globals
   *rows = ws.ws_row;
   *cols = ws.ws_col;
   
@@ -93,16 +83,14 @@ void UpdateTermSize(int * rows, int * cols)
 void handler(int signum)
 {
 
-  // Switch on signal number
-
+  // switch on signal number
   switch ( signum ) {
       
   case SIGTERM:
   case SIGINT:
   default:
 
-    // Clean up ncurses gui
-    
+    // clean up ncurses gui    
     CleanUp();
         
     exit(EXIT_SUCCESS);
@@ -116,15 +104,19 @@ void handler(int signum)
 
 void CleanUp ()
 {
-    
+  
+  extern BoardNode * homeNode;
   extern WINDOW * gameWindow;
   extern int oldcur;
-  extern BoardNode * homeNode;
 
-  delwin(gameWindow);
-  curs_set(oldcur);
-  endwin();
-  refresh();
-  FreeBoard(homeNode);
-  
+  if ( gameWindow != NULL ) {
+    delwin(gameWindow);
+    curs_set(oldcur);
+    endwin();
+    refresh();
+  } gameWindow = NULL;
+
+  if ( homeNode != NULL ) FreeBoard(homeNode);
+  homeNode = NULL;
+    
 }

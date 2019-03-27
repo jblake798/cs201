@@ -44,8 +44,8 @@ typedef enum { INITIALIZATION,
 
 // global variables
 
-WINDOW * gameWindow;
-BoardNode * homeNode;
+WINDOW * gameWindow = NULL;
+BoardNode * homeNode = NULL;
 int oldcur;
 
 
@@ -259,7 +259,7 @@ int main (void)
 	} else {
 	  if ( strlen(input) > 0 ) {
 	    printf("\nINVALID OPTION\n");
-	    printf("\nOptions: yes no\n");
+	    printf("\nOptions: begin menu resize\n");
 	    printf("Answer: ");
 	  }	  
 	}
@@ -332,15 +332,16 @@ int main (void)
       refresh();
 
       // loop for user input
-      key = getch();      
-      while ( key != KEY_ENTER ) {
+      do {
+
+	key = getch();
 	
 	switch ( key ) {
 
 	case KEY_RIGHT:
 	case 'd':
 	case 'D':
-	  if ( cursor < boardCols ) ++cursor;
+	  if ( cursor < ( boardCols - 1 ) ) ++cursor;
 	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  refresh();
 	  break;
@@ -348,21 +349,27 @@ int main (void)
 	case KEY_LEFT:
 	case 'a':
 	case 'A':
-	  if ( cursor >= 0 ) --cursor;
+	  if ( cursor > 0 ) --cursor;
 	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  refresh();
 	  break;
 
+	case KEY_DC:
 	case 'q':
 	case 'Q':
 	  state = CLOSE_GAME;
+	  key = 'e';
+	  break;
+
+	case KEY_ENTER:
+	case 'e':
+	case 'E':
+	  key = 'e';
 	  break;
 	  
 	}
-
-	key = getch();      
 	
-      }
+      } while ( key != 'e' );
 
       // catch quit statement before moving on
       if ( state == CLOSE_GAME ) break;
@@ -411,15 +418,16 @@ int main (void)
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 
       // loop for user input
-      key = getch();      
-      while ( key != KEY_ENTER ) {
+      do {
+
+	key = getch();
 	
 	switch ( key ) {
 
 	case KEY_RIGHT:
 	case 'd':
 	case 'D':
-	  if ( cursor < boardCols ) ++cursor;
+	  if ( cursor < ( boardCols - 1 ) ) ++cursor;
 	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  refresh();
 	  break;
@@ -427,27 +435,33 @@ int main (void)
 	case KEY_LEFT:
 	case 'a':
 	case 'A':
-	  if ( cursor >= 0 ) --cursor;
+	  if ( cursor > 0 ) --cursor;
 	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  refresh();
 	  break;
 
+	case KEY_DC:
 	case 'q':
 	case 'Q':
 	  state = CLOSE_GAME;
+	  key = 'e';
+	  break;
+
+	case KEY_ENTER:
+	case 'e':
+	case 'E':
+	  key = 'e';
 	  break;
 	  
 	}
-
-	key = getch();      
 	
-      }
+      } while ( key != 'e' );
 
       // catch quit statement before moving on
       if ( state == CLOSE_GAME ) break;
 
       // place token in desired column, catch error if column full
-      if ( DropToken( homeNode, cursor, ONE ) == 0 ) {
+      if ( DropToken( homeNode, cursor, TWO ) == 0 ) {
 	
 	// print error
 	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
@@ -501,7 +515,11 @@ int main (void)
 
     case CLOSE_GAME: /* CLOSE GAME BOARD AND RETURN TO INIT */
 
-      // TODO CLOSE GAME GRACEFULLY
+      CleanUp();
+
+      printf("\nGame was closed by user, going to main menu...\n");
+
+      state = INITIALIZATION;
 
       break;
       
