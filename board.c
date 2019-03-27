@@ -167,7 +167,7 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
 
   // calculate location of homeNode (X, Y)
   int homeNodeX = ( ( termCols / 2 ) - ( boardCols ) );
-  int homeNodeY = ( ( termRows / 2 ) + ( boardRows / 2 ) );
+  int homeNodeY = ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 );
 
   // bound to prevent ncurses print error
   if ( homeNodeX < 0 ) homeNodeX = 0;

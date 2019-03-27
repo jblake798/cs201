@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 #include <unistd.h>
 #include <signal.h>
 #include <curses.h>
@@ -222,15 +223,15 @@ int main (void)
       // informative output
       printf("\nBoard will be %d x %d\n", boardRows, boardCols);
 
-      int termRows, termCols;
-      int termRowsPrev, termColsPrev;
+      // terminal size tracking variables
+      int termRows, termCols = 0;
+      int termRowsPrev, termColsPrev = 0;
       UpdateTermSize( &termRows, &termCols );
 
-      // TODO MAKE SURE TERMINAL ALLOWED SIZE IS CORRECT
-      
-      if ( ( boardRows > ( termRows - 2 ) ) || ( ( ( 2 * boardCols ) - 1 ) > termCols ) ) {
+      // warn if terminal is too small
+      if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) ) {
 	printf("\nWARNING: TERMINAL WINDOW IS CURRENTLY NOT LARGE ENOUGH TO PROPERLY DISPLAY BOARD");
-	printf("\nCURRENT ALLOWED SIZE: %d x %d", ( termRows - 2 ), ( ( termCols / 2 ) + 1 ) );
+	printf("\nCURRENT ALLOWED SIZE: %d x %d", ( termRows - 3 ), (int) ( ceil( (double) termCols / 2 ) ) );
 	printf("\nVISUAL ERRORS MAY OCCUR\n");
       }
 
@@ -398,7 +399,11 @@ int main (void)
 	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
 	  
 	  refresh();
-	}	
+	}
+
+	// print warning if window too small
+	if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
+	  mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
 	
       } while ( key != 'e' );
 
@@ -506,6 +511,10 @@ int main (void)
 	  
 	  refresh();
 	}
+
+	// print warning if window too small
+	if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
+	  mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
 	
       } while ( key != 'e' );
 

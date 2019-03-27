@@ -1,7 +1,7 @@
 all:
 	gcc -Wall -c helper.c
 	gcc -Wall -c board.c
-	gcc -Wall -o four main.c helper.o board.o -lncurses
+	gcc -Wall -o four main.c helper.o board.o -lncurses -lm
 
 gdb:
 	gcc -g -c helper.c
