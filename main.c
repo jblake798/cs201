@@ -271,9 +271,14 @@ int main (void)
     case GAME_WINDOW_INIT: /* GAME WINDOW START */
       
       // initialize ncurses
-      if ( ( gameWindow = initscr() ) == NULL ) {
-	perror("error initializing ncurses");
-	exit(EXIT_FAILURE);
+      if ( gameWindow == NULL ) {
+	if ( ( gameWindow = initscr() ) == NULL ) {
+	  perror("error initializing ncurses");
+	  exit(EXIT_FAILURE);
+	}
+      } else {
+	werase(gameWindow);
+	refresh();
       }
 
       // save previous state
@@ -379,7 +384,7 @@ int main (void)
 	
 	// print error
 	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
-	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termRows / 2 ) - 5 ), "COLUMN FULL" );
+	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termCols / 2 ) - 5 ), "COLUMN FULL" );
 	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
 	refresh();
 
@@ -387,7 +392,7 @@ int main (void)
 	sleep(3);
 
 	// clear error
-	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termRows / 2 ) - 5 ), "           " );
+	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termCols / 2 ) - 5 ), "           " );
 	refresh();
 	
 	// send back to start of turn
@@ -465,7 +470,7 @@ int main (void)
 	
 	// print error
 	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
-	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termRows / 2 ) - 5 ), "COLUMN FULL" );
+	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termCols / 2 ) - 5 ), "COLUMN FULL" );
 	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
 	refresh();
 
@@ -473,7 +478,7 @@ int main (void)
 	sleep(3);
 
 	// clear error
-	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termRows / 2 ) - 5 ), "           " );
+	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termCols / 2 ) - 5 ), "           " );
 	refresh();
 	
 	// send back to start of turn
@@ -515,7 +520,9 @@ int main (void)
 
     case CLOSE_GAME: /* CLOSE GAME BOARD AND RETURN TO INIT */
 
-      CleanUp();
+      endwin();
+      FreeBoard(homeNode);
+      homeNode = NULL;
 
       printf("\nGame was closed by user, going to main menu...\n");
 

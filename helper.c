@@ -112,7 +112,7 @@ void CleanUp ()
   if ( gameWindow != NULL ) {
     delwin(gameWindow);
     curs_set(oldcur);
-    endwin();
+    if ( isendwin() == FALSE ) endwin();
     refresh();
   } gameWindow = NULL;
 
