@@ -249,26 +249,36 @@ int main (void)
 	exit(EXIT_FAILURE);
       }
 
-      if(has_colors() == FALSE)
+      if(has_colors() == FALSE) {
 	printf("\nNOTE :: Your terminal does not support color\n");
+      }
 
       noecho();
       keypad( gameWindow, TRUE );
       oldcur = curs_set(0);
-      start_color();
+      if(has_colors() == TRUE) {
+	start_color();
+	init_pair(1, COLOR_RED, COLOR_BLACK);
+	init_pair(2, COLOR_GREEN, COLOR_BLACK);
+      }
 
       // create board with set dimensions
       homeNode = CreateBoard( boardRows, boardCols );
 
+      // print board for first time and print other information on display
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, 1 );
+      mvwaddstr( gameWindow, 0, 0, "PRESS 'q' TO RETURN TO MENU");
+      
+      refresh();
+      
+      /*
       if ( DropToken( homeNode, 1, ONE ) == -1 ) printf("COLUMN DOESNT EXIST");
       for ( int i = 0 ; i < 59 ; i++ )
 	if ( DropToken( homeNode, 51, TWO ) == -1 ) printf("COLUMN DOESNT EXIST");
       if ( DropToken( homeNode, 102, TWO ) == -1 ) printf("COLUMN DOESNT EXIST");
 
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, 1 );
-
-      mvwaddstr( gameWindow, 0, 0, "PRESS 'q' TO RETURN TO MENU");
-      refresh();
+      */
       
 
       while(1);

@@ -158,8 +158,8 @@ int DropToken(BoardNode * homeNode, int column, PLAYER player)
 /*  Print game board graph structure  */
 
 void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
-		WINDOW * window, int termRows, int termCols,
-		int cursorCol)
+		     WINDOW * window, int termRows, int termCols,
+		     int cursorCol)
 {
   // pointers for graph navigation
   BoardNode * currentNode = homeNode;
@@ -177,8 +177,11 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
   int y = homeNodeY;
   int x = homeNodeX;
 
-  init_pair(1, COLOR_RED, COLOR_BLACK);
-  init_pair(2, COLOR_GREEN, COLOR_BLACK);
+  // define color options if available
+  if ( has_colors() == TRUE ) {
+    init_pair(1, COLOR_RED, COLOR_BLACK);
+    init_pair(2, COLOR_GREEN, COLOR_BLACK);
+  }
 
   // print cursor to screen first
   // keep column within bounds
@@ -212,15 +215,15 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
       // print owner in next space
       if ( *currentNode->owner == ONE ) {
 	
-	attron( COLOR_PAIR(1) );
+	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
 	mvwaddch( window, y, x++, '1' );
-	attroff( COLOR_PAIR(1) );
+	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
 	
       } else if ( *currentNode->owner == TWO ) {
 	
-       	attron( COLOR_PAIR(2) );
+       	if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
 	mvwaddch( window, y, x++, '2' );
-	attroff( COLOR_PAIR(2) );
+	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 	
       } else
 	mvwaddch( window, y, x++, '0' );
