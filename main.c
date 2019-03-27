@@ -56,7 +56,7 @@ int main (void)
     
     switch ( state ) {
       
-    case INITIALIZATION:
+    case INITIALIZATION: /* INITIALIZATION STATE */
 
       // print initial greeting
       
@@ -70,7 +70,8 @@ int main (void)
 
       
       // print list of options
-      
+
+      printf("\nMAIN MENU");
       printf("\nOptions: begin config quit\n");
       printf("Select option: ");
       
@@ -83,7 +84,7 @@ int main (void)
 	input[ strlen(input) - 1 ] = '\0';
 
 	// check input and change state if valid
-	if ( strcmp( input, "begin" ) == 0 )       state = GAME_CONFIG;
+	if ( strcmp( input, "begin" ) == 0 )       state = GAME_CONFIG_START;
 	else if ( strcmp( input, "config" ) == 0 ) state = PROG_CONFIG;
 	else if ( strcmp( input, "quit" ) == 0 )   state = QUIT;
 	else
@@ -98,23 +99,24 @@ int main (void)
       break;
 
       
-    case PROG_CONFIG:
+    case PROG_CONFIG: /* PROGRAM CONFIGURATION STATE */
 
       // TODO DECIDE WHAT OPTIONS YOU WANT TO CONFIGURE
 
       break;
 
 
-    case GAME_CONFIG:
+    case GAME_CONFIG_START: /* START OF GAME CONFIG STATE */
 
       printf("\nEntering game configuration...\n");
 
       
-      // number of players
+    case GAME_CONFIG_PLAYERNUM: /* GAME CONFIG STATE PLAYER NUMBER CHOICE */
 
+      printf("\nHow many human players are there?");
       printf("\nOptions: one two\n");
-      printf("Select number of players: ");
-
+      printf("Choice: ");
+      
       int players = 0;
       
       while ( players == 0 ) {
@@ -138,11 +140,12 @@ int main (void)
       if ( players == 1 ) printf("\nYou are player one!\nThe computer is player two!\n");
       else if ( players == 2 ) printf("\nPlayer one and player two will take turns with the keyboard!\nHonor system!\n");
 
-
-      // who goes first?
-
+      
+    case GAME_CONFIG_FIRSTPLAYER: /* GAME CONFIG STATE FIRST PLAYER CHOICE */
+      
+      printf("\nWho will go first?");
       printf("\nOptions: one two random\n");
-      printf("Select which player goes first: ");
+      printf("First player: ");
 
       PLAYER turn = INVALID_PLAYER;
       
@@ -170,8 +173,8 @@ int main (void)
       if ( turn == ONE ) printf("\nPlayer one will go first!\n");
       else if ( turn == TWO ) printf("\nPlayer two will go first!\n");
 
-
-      // size of board
+      
+    case GAME_CONFIG_BOARDSIZE: /* GAME CONFIG STATE BOARD SIZE CHOICE */
 
       printf("\nEnter size of board... (The standard board size is 6x7)");
 
@@ -205,88 +208,163 @@ int main (void)
 
       // TODO MAKE SURE TERMINAL ALLOWED SIZE IS CORRECT
       if ( ( boardRows > ( termRows - 2 ) ) || ( ( ( 2 * boardCols ) - 1 ) > termCols ) ) {
-	printf("\nWARNING: TERMINAL WINDOW IS NOT LARGE ENOUGH TO PROPERLY DISPLAY BOARD");
+	printf("\nWARNING: TERMINAL WINDOW IS CURRENTLY NOT LARGE ENOUGH TO PROPERLY DISPLAY BOARD");
 	printf("\nCURRENT ALLOWED SIZE: %d x %d", ( termRows - 2 ), ( ( termCols / 2 ) + 1 ) );
 	printf("\nVISUAL ERRORS MAY OCCUR\n");
       }
 
 
-      // confirm game start
+    case GAME_CONFIG_CONFIRMSTART: /* GAME CONFIG STATE CONFIRM START */
 
-      printf("\nWould you like to begin the game?");
-      printf("\nOptions: yes no\n");
+      printf("\nWould you like to BEGIN the game, EXIT to main menu, or RESIZE the board?");
+      printf("\nOptions: begin menu resize\n");
       printf("Answer: ");
+
+      state = INVALID_STATE;
       
-      while ( state == GAME_CONFIG ) {
+      while ( state == INVALID_STATE ) {
 	// read user input
 	char input[32];
 	fgets( input, 31, stdin );
 	input[ strlen(input) - 1 ] = '\0';
 
-	if ( strcmp( input, "yes" ) == 0 ) {
+	if ( strcmp( input, "begin" ) == 0 ) {
 	  state = GAME_WINDOW;
-	} else if ( strcmp( input, "no" ) == 0 ) {
+	  
+	} else if ( strcmp( input, "menu" ) == 0 ) {
 	  state = INITIALIZATION;
-	  printf("\nGoing back to initial menu...\n");
-	} else
+	  printf("\nGoing to main menu...\n");
+
+	} else if ( strcmp( input, "resize" ) == 0 ) {
+	  state = GAME_CONFIG_BOARDSIZE;
+	  printf("\nGoing back to board size decision...\n");
+	  
+	} else {
 	  if ( strlen(input) > 0 ) {
 	    printf("\nINVALID OPTION\n");
 	    printf("\nOptions: yes no\n");
 	    printf("Answer: ");
-	  }
+	  }	  
+	}
       }
-
       
       break;
 
 
-    case GAME_WINDOW:
+    case GAME_WINDOW: /* GAME WINDOW START */
       
-      // initialize ncurses and create game window
-
+      // initialize ncurses
       if ( ( gameWindow = initscr() ) == NULL ) {
 	perror("error initializing ncurses");
 	exit(EXIT_FAILURE);
       }
 
-      if(has_colors() == FALSE) {
-	printf("\nNOTE :: Your terminal does not support color\n");
-      }
+      // save previous state
+      oldcur = curs_set(0);
 
+      // initialize window settings
       noecho();
       keypad( gameWindow, TRUE );
-      oldcur = curs_set(0);
-      if(has_colors() == TRUE) {
+      if ( has_colors() == TRUE ) {
 	start_color();
 	init_pair(1, COLOR_RED, COLOR_BLACK);
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
-      }
+      } else printf("\nNOTE :: Your terminal does not support color\n");
 
       // create board with set dimensions
       homeNode = CreateBoard( boardRows, boardCols );
 
       // print board for first time and print other information on display
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, 1 );
-      mvwaddstr( gameWindow, 0, 0, "PRESS 'q' TO RETURN TO MENU");
-      
+      mvwaddstr( gameWindow, 0, ( termCols - 28 ), "PRESS 'q' TO RETURN TO MENU");      
       refresh();
-      
-      /*
-      if ( DropToken( homeNode, 1, ONE ) == -1 ) printf("COLUMN DOESNT EXIST");
-      for ( int i = 0 ; i < 59 ; i++ )
-	if ( DropToken( homeNode, 51, TWO ) == -1 ) printf("COLUMN DOESNT EXIST");
-      if ( DropToken( homeNode, 102, TWO ) == -1 ) printf("COLUMN DOESNT EXIST");
 
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, 1 );
-      */
+      // go to proper first turn state
+      if ( firstTurn == ONE ) state = PLAYER_ONE_TURN;
       
+      else if ( firstTurn == TWO ) {
+	
+	if ( players == 1 ) state = COMPUTER_TURN;
+	else if ( player == 2 ) state = PLAYER_TWO_TURN;
+	else state = INVALID_STATE;
+	
+      }
 
-      while(1);
+      else state = INVALID_STATE;
 
       break;
 
-    case INVALID_STATE:
-    case QUIT:
+      /*
+	if ( DropToken( homeNode, 1, ONE ) == -1 )
+      */
+
+    case PLAYER_ONE_TURN: /* PLAYER ONE'S TURN */
+
+      // print player turn
+      if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
+      mvwaddstr( gameWindow, 0, 0, "PLAYER ONE TURN");
+      if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
+
+      // loop for user input
+      int key = getch();      
+      while ( key != KEY_ENTER ) {
+	
+	switch ( key ) {
+
+	case KEY_RIGHT:
+	case 'd':
+	case 'D':
+
+	  break;
+
+	case KEY_RIGHT:
+	case 'd':
+	case 'D':
+
+	  break;
+
+	  
+	}
+	
+      }
+
+      // go to next turn
+      if ( players == 1 ) state = COMPUTER_TURN;
+      else if ( player == 2 ) state = PLAYER_TWO_TURN;
+      else state = INVALID_STATE;
+
+      break;
+
+    case PLAYER_TWO_TURN: /* PLAYER TWO'S TURN */
+
+      // print player turn
+      if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
+      mvwaddstr( gameWindow, 0, 0, "PLAYER TWO TURN");
+      if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
+
+
+      
+      // go to next turn
+      state = PLAYER_ONE_TURN;
+
+      break;
+      
+    case COMPUTER_TURN: /* COMPUTER'S TURN */
+
+      // print player turn
+      if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
+      mvwaddstr( gameWindow, 0, 0, "COMPUTER TURN");
+      if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
+
+      
+
+      // go to next turn
+      state = PLAYER_ONE_TURN;
+
+      break;
+
+    case INVALID_STATE: /* INVALID STATE */
+    case QUIT: /* QUIT */
 
       Quit(0);
 
