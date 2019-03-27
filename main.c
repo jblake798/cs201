@@ -312,6 +312,11 @@ int main (void)
       mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
       refresh();
 
+      // print warning if window too small
+      if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
+	mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
+
+
       // go to proper first turn state
       if ( firstTurn == ONE ) state = PLAYER_ONE_TURN;
       
