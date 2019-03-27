@@ -47,6 +47,14 @@ WINDOW * gameWindow = NULL;
 BoardNode * homeNode = NULL;
 int oldcur;
 
+int pvpGames = 0;
+int pvpP1Wins = 0;
+int pvpP2Wins = 0;
+
+int pvcGames = 0;
+int pvcP1Wins = 0;
+int pvcAIWins = 0;
+
 
 // function declarations
 
@@ -75,14 +83,19 @@ int main (void)
 
       // print initial greeting
       
-      printf("\nCONNECT FOUR\n");
+      printf("\n\nCONNECT FOUR\n\n");
       
-      printf("\nCurrent score:\n");
+      printf("\nCurrent scores:\n");
       
       // TODO UNCOMMENT SCORE INFORMATION
-      // printf("Player v. Player: %d", pvpScore);
-      // printf("Player v. Computer: %d", pvcompScore);
-
+      printf("\nPlayer v. Player games played: %d\n", pvpGames);
+      printf("\tPlayer 1 wins: %d\n", pvpP1Wins);
+      printf("\tPlayer 2 wins: %d\n", pvpP2Wins);
+      
+      printf("\nPlayer v. Computer games played: %d\n", pvcGames);
+      printf("\tPlayer 1 wins: %d\n", pvcP1Wins);
+      printf("\tComputer wins: %d\n", pvcAIWins);
+      
       
       // print list of options
 
@@ -211,6 +224,7 @@ int main (void)
       printf("\nBoard will be %d x %d\n", boardRows, boardCols);
 
       int termRows, termCols;
+      int termRowsPrev, termColsPrev;
       UpdateTermSize( &termRows, &termCols );
 
       // TODO MAKE SURE TERMINAL ALLOWED SIZE IS CORRECT
@@ -320,6 +334,7 @@ int main (void)
       // set cursor to start
       cursor = 0;
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
       refresh();
 
       // print player turn
@@ -364,8 +379,28 @@ int main (void)
 	case 'E':
 	  key = 'e';
 	  break;
-	  
+	  	  
 	}
+
+	// resize window if terminal window changed
+	termRowsPrev = termRows;
+	termColsPrev = termRows;
+	UpdateTermSize( &termRows, &termCols );
+
+	// reprint if necessary
+	if ( ( termRows != termRowsPrev ) || ( termCols != termColsPrev ) ) {
+	  
+	  werase( gameWindow );
+	  
+	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
+	  
+	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
+	  mvwaddstr( gameWindow, 0, 0, "PLAYER ONE TURN");
+	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
+	  
+	  refresh();
+	}	
 	
       } while ( key != 'e' );
 
@@ -408,6 +443,7 @@ int main (void)
       // set cursor to start
       cursor = 0;
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
       refresh();
 
       // print player turn
@@ -419,8 +455,6 @@ int main (void)
       do {
 
 	key = getch();
-
-	mvwaddch( gameWindow, 0, 0, key );
 	
 	switch ( key ) {
 
@@ -453,6 +487,26 @@ int main (void)
 	  key = 'e';
 	  break;
 	  
+	}
+
+	// resize window if terminal window changed
+	termRowsPrev = termRows;
+	termColsPrev = termRows;
+	UpdateTermSize( &termRows, &termCols );
+
+	// reprint if necessary
+	if ( ( termRows != termRowsPrev ) || ( termCols != termColsPrev ) ) {
+	  
+	  werase( gameWindow );
+	  
+	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
+	  
+	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
+	  mvwaddstr( gameWindow, 0, 0, "PLAYER TWO TURN");
+	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
+	  
+	  refresh();
 	}
 	
       } while ( key != 'e' );
@@ -491,12 +545,20 @@ int main (void)
       
     case COMPUTER_TURN: /* COMPUTER'S TURN */
 
+      // set cursor to start
+      cursor = 0;
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
+      refresh();
+
       // print player turn
       if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
       mvwaddstr( gameWindow, 0, 0, "COMPUTER TURN");
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 
       // TODO AI MOVE
+
+      DropToken( homeNode, cursor, TWO );
 
       // TODO CHECK FOR WIN
 
