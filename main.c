@@ -25,7 +25,6 @@
 // define state type
 
 typedef enum { INITIALIZATION,
-	       PROG_CONFIG,
 	       GAME_CONFIG_START,
 	       GAME_CONFIG_PLAYERNUM,
 	       GAME_CONFIG_FIRSTPLAYER,
@@ -88,7 +87,7 @@ int main (void)
       // print list of options
 
       printf("\nMAIN MENU");
-      printf("\nOptions: begin config quit\n");
+      printf("\nOptions: begin quit\n");
       printf("Select option: ");
       
       state = INVALID_STATE;
@@ -101,26 +100,18 @@ int main (void)
 
 	// check input and change state if valid
 	if ( strcmp( input, "begin" ) == 0 )       state = GAME_CONFIG_START;
-	else if ( strcmp( input, "config" ) == 0 ) state = PROG_CONFIG;
 	else if ( strcmp( input, "quit" ) == 0 )   state = QUIT;
 	else
 	  if ( strlen(input) > 0 ) {
 	    printf("\nINVALID OPTION\n");
-	    printf("\nOptions: begin config quit\n");
+	    printf("\nOptions: begin quit\n");
 	    printf("Select option: ");
 	  }
       }
 
       
       break;
-
       
-    case PROG_CONFIG: /* PROGRAM CONFIGURATION STATE */
-
-      // TODO DECIDE WHAT OPTIONS YOU WANT TO CONFIGURE
-
-      break;
-
 
     case GAME_CONFIG_START: /* START OF GAME CONFIG STATE */
 
@@ -223,6 +214,7 @@ int main (void)
       UpdateTermSize( &termRows, &termCols );
 
       // TODO MAKE SURE TERMINAL ALLOWED SIZE IS CORRECT
+      // TODO MAKE GAME RESIZE WHEN WINDOW SHIFTS
       
       if ( ( boardRows > ( termRows - 2 ) ) || ( ( ( 2 * boardCols ) - 1 ) > termCols ) ) {
 	printf("\nWARNING: TERMINAL WINDOW IS CURRENTLY NOT LARGE ENOUGH TO PROPERLY DISPLAY BOARD");
@@ -302,11 +294,9 @@ int main (void)
       // create variable for choosing column
       int cursor = 0;
 
-      // TODO FIX READING ENTER KEY
-
       // print board and infographics
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
-      mvwaddstr( gameWindow, 0, ( termCols - 28 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
+      mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
       refresh();
 
       // go to proper first turn state
@@ -429,6 +419,8 @@ int main (void)
       do {
 
 	key = getch();
+
+	mvwaddch( gameWindow, 0, 0, key );
 	
 	switch ( key ) {
 
@@ -455,7 +447,7 @@ int main (void)
 	  key = 'e';
 	  break;
 
-	case KEY_ENTER:
+	case 10:
 	case 'e':
 	case 'E':
 	  key = 'e';
