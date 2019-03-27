@@ -130,7 +130,7 @@ int DropToken(BoardNode * homeNode, int column, PLAYER player)
   BoardNode * currentNode = homeNode;
 
   // navigate to desired column
-  for ( int i = 1 ; i < column ; i++ ) {
+  for ( int i = 0 ; i < column ; i++ ) {
     currentNode = currentNode->right;
 
     // if column does not exist, report error
@@ -174,8 +174,8 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
   if ( homeNodeY > ( termRows - 1 ) ) homeNodeY = ( termRows - 1 );
 
   // set incrementers for print corrdinates
-  int y = homeNodeY;
   int x = homeNodeX;
+  int y = homeNodeY;
 
   // define color options if available
   if ( has_colors() == TRUE ) {

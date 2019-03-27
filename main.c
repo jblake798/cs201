@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 #include <signal.h>
 #include <curses.h>
 
@@ -207,6 +208,7 @@ int main (void)
       UpdateTermSize( &termRows, &termCols );
 
       // TODO MAKE SURE TERMINAL ALLOWED SIZE IS CORRECT
+      
       if ( ( boardRows > ( termRows - 2 ) ) || ( ( ( 2 * boardCols ) - 1 ) > termCols ) ) {
 	printf("\nWARNING: TERMINAL WINDOW IS CURRENTLY NOT LARGE ENOUGH TO PROPERLY DISPLAY BOARD");
 	printf("\nCURRENT ALLOWED SIZE: %d x %d", ( termRows - 2 ), ( ( termCols / 2 ) + 1 ) );
@@ -229,7 +231,7 @@ int main (void)
 	input[ strlen(input) - 1 ] = '\0';
 
 	if ( strcmp( input, "begin" ) == 0 ) {
-	  state = GAME_WINDOW;
+	  state = GAME_WINDOW_INIT;
 	  
 	} else if ( strcmp( input, "menu" ) == 0 ) {
 	  state = INITIALIZATION;
@@ -251,7 +253,7 @@ int main (void)
       break;
 
 
-    case GAME_WINDOW: /* GAME WINDOW START */
+    case GAME_WINDOW_INIT: /* GAME WINDOW START */
       
       // initialize ncurses
       if ( ( gameWindow = initscr() ) == NULL ) {
@@ -274,9 +276,9 @@ int main (void)
       // create board with set dimensions
       homeNode = CreateBoard( boardRows, boardCols );
 
-      // print board for first time and print other information on display
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, 1 );
-      mvwaddstr( gameWindow, 0, ( termCols - 28 ), "PRESS 'q' TO RETURN TO MENU");      
+      // print board and infographics
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, 0 );
+      mvwaddstr( gameWindow, 0, ( termCols - 28 ), "PRESS 'q' TO RETURN TO MENU");
       refresh();
 
       // go to proper first turn state
@@ -294,16 +296,19 @@ int main (void)
 
       break;
 
-      /*
-	if ( DropToken( homeNode, 1, ONE ) == -1 )
-      */
-
+      
     case PLAYER_ONE_TURN: /* PLAYER ONE'S TURN */
+
+      // set cursor to start
+      int cursor = 0;
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      refresh();
 
       // print player turn
       if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
       mvwaddstr( gameWindow, 0, 0, "PLAYER ONE TURN");
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
+      refresh();
 
       // loop for user input
       int key = getch();      
@@ -314,36 +319,136 @@ int main (void)
 	case KEY_RIGHT:
 	case 'd':
 	case 'D':
-
+	  if ( cursor < boardCols ) ++cursor;
+	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  refresh();
 	  break;
 
-	case KEY_RIGHT:
-	case 'd':
-	case 'D':
-
+	case KEY_LEFT:
+	case 'a':
+	case 'A':
+	  if ( cursor >= 0 ) --cursor;
+	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  refresh();
 	  break;
 
+	case 'q':
+	case 'Q':
+	  state = CLOSE_GAME;
+	  break;
 	  
 	}
+
+	key = getch();      
 	
       }
 
+      // catch quit statement before moving on
+      if ( state == CLOSE_GAME ) break;
+
+      // place token in desired column, catch error if column full
+      if ( DropToken( homeNode, cursor, ONE ) == 0 ) {
+	
+	// print error
+	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
+	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termRows / 2 ) - 5 ), "COLUMN FULL" );
+	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
+	refresh();
+
+	// sleep for 3 seconds
+	sleep(3);
+
+	// clear error
+	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termRows / 2 ) - 5 ), "           " );
+	refresh();
+	
+	// send back to start of turn
+	state = PLAYER_ONE_TURN;
+	break;
+	
+      }
+
+      // TODO CHECK FOR WIN
+
       // go to next turn
       if ( players == 1 ) state = COMPUTER_TURN;
-      else if ( player == 2 ) state = PLAYER_TWO_TURN;
+      else if ( players == 2 ) state = PLAYER_TWO_TURN;
       else state = INVALID_STATE;
 
       break;
 
     case PLAYER_TWO_TURN: /* PLAYER TWO'S TURN */
 
+      // set cursor to start
+      int cursor = 0;
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      refresh();
+
       // print player turn
       if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
       mvwaddstr( gameWindow, 0, 0, "PLAYER TWO TURN");
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 
+      // loop for user input
+      int key = getch();      
+      while ( key != KEY_ENTER ) {
+	
+	switch ( key ) {
 
-      
+	case KEY_RIGHT:
+	case 'd':
+	case 'D':
+	  if ( cursor < boardCols ) ++cursor;
+	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  refresh();
+	  break;
+
+	case KEY_LEFT:
+	case 'a':
+	case 'A':
+	  if ( cursor >= 0 ) --cursor;
+	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  refresh();
+	  break;
+
+	case 'q':
+	case 'Q':
+	  state = CLOSE_GAME;
+	  break;
+	  
+	}
+
+	key = getch();      
+	
+      }
+
+      // catch quit statement before moving on
+      if ( state == CLOSE_GAME ) break;
+
+      // place token in desired column, catch error if column full
+      if ( DropToken( homeNode, cursor, ONE ) == 0 ) {
+	
+	// print error
+	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
+	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termRows / 2 ) - 5 ), "COLUMN FULL" );
+	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
+	refresh();
+
+	// sleep for 3 seconds
+	sleep(3);
+
+	// clear error
+	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termRows / 2 ) - 5 ), "           " );
+	refresh();
+	
+	// send back to start of turn
+	state = PLAYER_TWO_TURN;
+	break;
+	
+      }
+
+      // TODO CHECK FOR WIN
+
       // go to next turn
       state = PLAYER_ONE_TURN;
 
@@ -356,14 +461,29 @@ int main (void)
       mvwaddstr( gameWindow, 0, 0, "COMPUTER TURN");
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 
-      
+      // TODO AI MOVE
+
+      // TODO CHECK FOR WIN
 
       // go to next turn
       state = PLAYER_ONE_TURN;
 
       break;
 
+
+    case WIN_CONDITION: /* WINNING STATE */
+
+      // TODO WIN STATE
+
+      break;
+      
+
     case INVALID_STATE: /* INVALID STATE */
+
+      Quit_Error();
+
+      break;
+      
     case QUIT: /* QUIT */
 
       Quit(0);
