@@ -22,9 +22,24 @@
 #include "board.h"
 
 
-// defining types
+// define state type
 
-typedef enum { INITIALIZATION, PROG_CONFIG, GAME_CONFIG, GAME_WINDOW, QUIT, INVALID_STATE } STATE;
+typedef enum { INITIALIZATION,
+	       PROG_CONFIG,
+	       GAME_CONFIG_START,
+	       GAME_CONFIG_PLAYERNUM,
+	       GAME_CONFIG_FIRSTPLAYER,
+	       GAME_CONFIG_BOARDSIZE,
+	       GAME_CONFIG_CONFIRMSTART,
+	       GAME_WINDOW_INIT,
+	       PLAYER_ONE_TURN,
+	       PLAYER_TWO_TURN,
+	       COMPUTER_TURN,
+	       WIN_CONDITION,
+	       CLOSE_GAME,
+	       QUIT,
+	       INVALID_STATE }
+  STATE;
 
 
 // global variables
@@ -148,20 +163,20 @@ int main (void)
       printf("\nOptions: one two random\n");
       printf("First player: ");
 
-      PLAYER turn = INVALID_PLAYER;
+      PLAYER firstTurn = INVALID_PLAYER;
       
-      while ( turn == INVALID_PLAYER ) {
+      while ( firstTurn == INVALID_PLAYER ) {
 	// read user input
 	char input[32];
 	fgets( input, 31, stdin );
 	input[ strlen(input) - 1 ] = '\0';
 
 	// check input and set player appropriately
-	if ( strcmp( input, "one" ) == 0 ) turn = ONE;
-	else if ( strcmp( input, "two" ) == 0 ) turn = TWO;
+	if ( strcmp( input, "one" ) == 0 ) firstTurn = ONE;
+	else if ( strcmp( input, "two" ) == 0 ) firstTurn = TWO;
 	else if ( strcmp( input, "random" ) == 0 ) {
-	  if ( rand() % 2 ) turn = ONE;
-	  else turn = TWO;
+	  if ( rand() % 2 ) firstTurn = ONE;
+	  else firstTurn = TWO;
 	} else
 	  if ( strlen(input) > 0 ) {
 	    printf("\nINVALID OPTION\n");
@@ -171,8 +186,8 @@ int main (void)
       }
 
       // informative output
-      if ( turn == ONE ) printf("\nPlayer one will go first!\n");
-      else if ( turn == TWO ) printf("\nPlayer two will go first!\n");
+      if ( firstTurn == ONE ) printf("\nPlayer one will go first!\n");
+      else if ( firstTurn == TWO ) printf("\nPlayer two will go first!\n");
 
       
     case GAME_CONFIG_BOARDSIZE: /* GAME CONFIG STATE BOARD SIZE CHOICE */
@@ -273,11 +288,17 @@ int main (void)
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
       } else printf("\nNOTE :: Your terminal does not support color\n");
 
+      // create variable for finding user input
+      int key;
+
       // create board with set dimensions
       homeNode = CreateBoard( boardRows, boardCols );
 
+      // create variable for choosing column
+      int cursor = 0;
+
       // print board and infographics
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, 0 );
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       mvwaddstr( gameWindow, 0, ( termCols - 28 ), "PRESS 'q' TO RETURN TO MENU");
       refresh();
 
@@ -287,7 +308,7 @@ int main (void)
       else if ( firstTurn == TWO ) {
 	
 	if ( players == 1 ) state = COMPUTER_TURN;
-	else if ( player == 2 ) state = PLAYER_TWO_TURN;
+	else if ( players == 2 ) state = PLAYER_TWO_TURN;
 	else state = INVALID_STATE;
 	
       }
@@ -300,7 +321,7 @@ int main (void)
     case PLAYER_ONE_TURN: /* PLAYER ONE'S TURN */
 
       // set cursor to start
-      int cursor = 0;
+      cursor = 0;
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       refresh();
 
@@ -311,7 +332,7 @@ int main (void)
       refresh();
 
       // loop for user input
-      int key = getch();      
+      key = getch();      
       while ( key != KEY_ENTER ) {
 	
 	switch ( key ) {
@@ -380,7 +401,7 @@ int main (void)
     case PLAYER_TWO_TURN: /* PLAYER TWO'S TURN */
 
       // set cursor to start
-      int cursor = 0;
+      cursor = 0;
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       refresh();
 
@@ -390,7 +411,7 @@ int main (void)
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 
       // loop for user input
-      int key = getch();      
+      key = getch();      
       while ( key != KEY_ENTER ) {
 	
 	switch ( key ) {
@@ -476,11 +497,18 @@ int main (void)
       // TODO WIN STATE
 
       break;
+
+
+    case CLOSE_GAME: /* CLOSE GAME BOARD AND RETURN TO INIT */
+
+      // TODO CLOSE GAME GRACEFULLY
+
+      break;
       
 
     case INVALID_STATE: /* INVALID STATE */
 
-      Quit_Error();
+      Error_Quit("\n\nENTERED INVALID STATE\n\n");
 
       break;
       

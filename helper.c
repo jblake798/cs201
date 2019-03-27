@@ -104,8 +104,7 @@ void handler(int signum)
     // Clean up ncurses gui
     
     CleanUp();
-    
-    
+        
     exit(EXIT_SUCCESS);
 
   }
