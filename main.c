@@ -87,7 +87,6 @@ int main (void)
       
       printf("\nCurrent scores:\n");
       
-      // TODO UNCOMMENT SCORE INFORMATION
       printf("\nPlayer v. Player games played: %d\n", pvpGames);
       printf("\tPlayer 1 wins: %d\n", pvpP1Wins);
       printf("\tPlayer 2 wins: %d\n", pvpP2Wins);
@@ -228,7 +227,6 @@ int main (void)
       UpdateTermSize( &termRows, &termCols );
 
       // TODO MAKE SURE TERMINAL ALLOWED SIZE IS CORRECT
-      // TODO MAKE GAME RESIZE WHEN WINDOW SHIFTS
       
       if ( ( boardRows > ( termRows - 2 ) ) || ( ( ( 2 * boardCols ) - 1 ) > termCols ) ) {
 	printf("\nWARNING: TERMINAL WINDOW IS CURRENTLY NOT LARGE ENOUGH TO PROPERLY DISPLAY BOARD");
@@ -412,15 +410,15 @@ int main (void)
 	
 	// print error
 	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
-	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termCols / 2 ) - 5 ), "COLUMN FULL" );
+	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) ), ( ( termCols / 2 ) - ( boardCols ) ), "COLUMN FULL" );
 	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
 	refresh();
 
-	// sleep for 3 seconds
-	sleep(3);
+	// sleep for 2 seconds
+	sleep(2);
 
 	// clear error
-	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termCols / 2 ) - 5 ), "           " );
+	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) ), ( ( termCols / 2 ) - ( boardCols ) ), "           " );
 	refresh();
 	
 	// send back to start of turn
@@ -519,15 +517,15 @@ int main (void)
 	
 	// print error
 	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
-	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termCols / 2 ) - 5 ), "COLUMN FULL" );
+	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) ), ( ( termCols / 2 ) - ( boardCols ) ), "COLUMN FULL" );
 	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
 	refresh();
 
-	// sleep for 3 seconds
-	sleep(3);
+	// sleep for 2 seconds
+	sleep(2);
 
 	// clear error
-	mvwaddstr( gameWindow, ( termRows / 2 ), ( ( termCols / 2 ) - 5 ), "           " );
+	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) ), ( ( termCols / 2 ) - ( boardCols ) ), "           " );
 	refresh();
 	
 	// send back to start of turn
