@@ -302,9 +302,11 @@ int main (void)
       // create variable for choosing column
       int cursor = 0;
 
+      // TODO FIX READING ENTER KEY
+
       // print board and infographics
       PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
-      mvwaddstr( gameWindow, 0, ( termCols - 28 ), "PRESS 'q' TO RETURN TO MENU");
+      mvwaddstr( gameWindow, 0, ( termCols - 28 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
       refresh();
 
       // go to proper first turn state
@@ -367,6 +369,7 @@ int main (void)
 	  break;
 
 	case KEY_ENTER:
+	case '\n':
 	case 'e':
 	case 'E':
 	  key = 'e';
