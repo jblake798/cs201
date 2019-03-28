@@ -41,7 +41,7 @@ BoardNode * NewNode();
 int DropToken(BoardNode *, int, PLAYER);
 void PrintBoard(BoardNode *, int, int, WINDOW *, int, int, int);
 
-PLAYER IsWinner(BoardNode *);
+int IsWinningMove(BoardNode *, int, PLAYER);
 
 void FreeBoard(BoardNode *);
 

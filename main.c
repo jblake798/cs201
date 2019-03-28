@@ -316,6 +316,9 @@ int main (void)
       if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
 	mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
 
+      // create variable for finding winner
+      PLAYER winner = NONE;
+
 
       // go to proper first turn state
       if ( firstTurn == ONE ) state = PLAYER_ONE_TURN;
@@ -412,15 +415,26 @@ int main (void)
 	
       } while ( key != 'e' );
 
+      
       // catch quit statement before moving on
       if ( state == CLOSE_GAME ) break;
+
+      // check if winning move
+      if ( IsWinningMove( homeNode, cursor, ONE ) ) {
+	DropToken( homeNode, cursor, ONE );
+	PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	refresh();
+	winner = ONE;
+	state = WIN_CONDITION;
+	break;
+      }
 
       // place token in desired column, catch error if column full
       if ( DropToken( homeNode, cursor, ONE ) == 0 ) {
 	
 	// print error
 	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
-	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) ), ( ( termCols / 2 ) - ( boardCols ) ), "COLUMN FULL" );
+	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "COLUMN FULL" );
 	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
 	refresh();
 
@@ -436,8 +450,6 @@ int main (void)
 	break;
 	
       }
-
-      // TODO CHECK FOR WIN
 
       // go to next turn
       if ( players == 1 ) state = COMPUTER_TURN;
@@ -526,12 +538,22 @@ int main (void)
       // catch quit statement before moving on
       if ( state == CLOSE_GAME ) break;
 
+      // check if winning move
+      if ( IsWinningMove( homeNode, cursor, TWO ) ) {
+	DropToken( homeNode, cursor, TWO );
+	PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	refresh();
+	winner = TWO;
+	state = WIN_CONDITION;
+	break;
+      }
+
       // place token in desired column, catch error if column full
       if ( DropToken( homeNode, cursor, TWO ) == 0 ) {
 	
 	// print error
 	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
-	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) ), ( ( termCols / 2 ) - ( boardCols ) ), "COLUMN FULL" );
+	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "COLUMN FULL" );
 	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
 	refresh();
 
@@ -547,8 +569,6 @@ int main (void)
 	break;
 	
       }
-
-      // TODO CHECK FOR WIN
 
       // go to next turn
       state = PLAYER_ONE_TURN;
@@ -582,10 +602,67 @@ int main (void)
 
     case WIN_CONDITION: /* WINNING STATE */
 
-      // TODO WIN STATE
+      // go to proper first turn state
+      if ( winner == ONE ) {
 
-      break;
+	// player one is winner
+	if ( players == 1 ) {
+	  
+	  ++pvcGames;
+	  ++pvcP1Wins;
+	  
+	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
+	  mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "PLAYER ONE WINS" );
+	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
+	  refresh();
+	  
+	} else if ( players == 2 ) {
+	  
+	  ++pvpGames;
+	  ++pvpP1Wins;
 
+	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
+	  mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "PLAYER ONE WINS" );
+	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
+	  refresh();
+
+	}
+	
+      } else if ( winner == TWO ) {
+	
+	if ( players == 1 ) {
+
+	  // computer is winner
+	  ++pvcGames;
+	  ++pvcAIWins;
+
+	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
+	  mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "COMPUTER WINS" );
+	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
+	  refresh();
+	
+	} else if ( players == 2 ) {
+
+	  // player two is winner
+	  ++pvpGames;
+	  ++pvpP2Wins;
+
+	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
+	  mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "PLAYER TWO WINS" );
+	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
+	  refresh();
+	  
+	} else state = INVALID_STATE;
+	
+      } else state = INVALID_STATE;
+
+      if ( state == INVALID_STATE ) break; // you should never get here. something went wrong.
+
+      // sleep for 2 seconds
+      sleep(2);
+
+      // reset
+      winner = NONE;
 
     case CLOSE_GAME: /* CLOSE GAME BOARD AND RETURN TO INIT */
 
@@ -593,7 +670,7 @@ int main (void)
       FreeBoard(homeNode);
       homeNode = NULL;
 
-      printf("\nGame was closed by user, going to main menu...\n");
+      printf("\nGoing to main menu...\n");
 
       state = INITIALIZATION;
 

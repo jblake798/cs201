@@ -248,12 +248,117 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
 }
 
 
-/*  Check for winner in game board graph structure  */
+/*  Check if token would win in given game board graph structure  */
 
-PLAYER IsWinner(BoardNode * homeNode)
+int IsWinningMove(BoardNode * homeNode, int column, PLAYER player)
 {
-  PLAYER winner = NONE;
-  return winner;
+  // pointer for graph navigation
+  BoardNode * currentNode = homeNode;
+
+  // navigate to desired column
+  for ( int i = 0 ; i < column ; i++ ) {
+    currentNode = currentNode->right;
+
+    // if column does not exist, report error
+    if ( currentNode == NULL ) return -1;
+  }
+
+  // move up column until empty node found. search surroundings if found
+  while ( currentNode != NULL ) {
+    
+    if ( *currentNode->owner == NONE ) {
+
+      // save node to focus on
+      BoardNode * focusNode = currentNode;
+
+      // check vertical
+      int i = 0;
+      currentNode = currentNode->below;
+      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( i < 3 ) ) {
+	currentNode = currentNode->below;
+	++i;
+      } if ( i == 3 ) return 1;
+
+      
+      // reset currentNode and coutners
+      currentNode = focusNode;
+      i = 0;
+      int j = 0;
+
+      // check horizontal
+      // check left
+      currentNode = currentNode->left;
+      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( i < 3 ) ) {
+	currentNode = currentNode->left;
+	++i;
+      }
+      // check right
+      currentNode = focusNode->right;
+      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( j < 3 ) ) {
+	currentNode = currentNode->right;
+	++j;
+      }
+      // compute total in a row and return if 4 in a row
+      if ( ( i + j + 1 ) > 3 ) return 1;
+
+      
+      // reset currentNode and coutners
+      currentNode = focusNode;
+      i = 0;
+      j = 0;
+
+      // check backslash diagonal
+      // check above left
+      currentNode = currentNode->aboveLeft;
+      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( i < 3 ) ) {
+	currentNode = currentNode->aboveLeft;
+	++i;
+      }
+      // check below right
+      currentNode = focusNode->belowRight;
+      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( j < 3 ) ) {
+	currentNode = currentNode->belowRight;
+	++j;
+      }
+      // compute total in a row and return if 4 in a row
+      if ( ( i + j + 1 ) > 3 ) return 1;
+
+      
+      // reset currentNode and coutners
+      currentNode = focusNode;
+      i = 0;
+      j = 0;
+
+      // check forwardslash diagonal
+      // check above right
+      currentNode = currentNode->aboveRight;
+      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( i < 3 ) ) {
+	currentNode = currentNode->aboveRight;
+	++i;
+      }
+      // check below left
+      currentNode = focusNode->belowLeft;
+      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( j < 3 ) ) {
+	currentNode = currentNode->belowLeft;
+	++j;
+      }
+      // compute total in a row and return if 4 in a row
+      if ( ( i + j + 1 ) > 3 ) return 1;
+
+
+      // if reaches here, not a winning move
+      return 0;
+
+    }
+    currentNode = currentNode->above;
+  }
+
+  // catch if pointer reached top of column without finding empty node
+  if ( currentNode == NULL ) return -1;
+
+  // code should never reach this point
+  return -2;
+
 }
 
 
