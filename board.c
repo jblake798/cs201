@@ -155,99 +155,6 @@ int DropToken(BoardNode * homeNode, int column, PLAYER player)
 }
 
 
-/*  Print game board graph structure  */
-
-void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
-		     WINDOW * window, int termRows, int termCols,
-		     int cursorCol)
-{
-  // pointers for graph navigation
-  BoardNode * currentNode = homeNode;
-  BoardNode * nextRowNode;
-
-  // calculate location of homeNode (X, Y)
-  int homeNodeX = ( ( termCols / 2 ) - ( boardCols ) );
-  int homeNodeY = ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 );
-
-  // bound to prevent ncurses print error
-  if ( homeNodeX < 0 ) homeNodeX = 0;
-  if ( homeNodeY > ( termRows - 1 ) ) homeNodeY = ( termRows - 1 );
-
-  // set incrementers for print corrdinates
-  int x = homeNodeX;
-  int y = homeNodeY;
-
-  // define color options if available
-  if ( has_colors() == TRUE ) {
-    init_pair(1, COLOR_RED, COLOR_BLACK);
-    init_pair(2, COLOR_GREEN, COLOR_BLACK);
-  }
-
-  // print cursor to screen first
-  // keep column within bounds
-  if ( cursorCol < 0 ) cursorCol = 0;
-  if ( cursorCol > ( boardCols - 1 ) ) cursorCol = ( boardCols - 1 );
-
-  // print cursor row
-  for ( int i = 0 ; i < boardCols ; i++ ) {
-    if ( x != homeNodeX ) mvwaddch( window, y, x++, ' ' );
-    if ( i == cursorCol ) mvwaddch( window, y, x++, '^' );
-    else mvwaddch( window, y, x++, ' ' );
-  }
-
-  // if top of window has not been reached, increment y
-  if ( y < termRows ) --y;
-
-  // reset x to start of row
-  x = homeNodeX;  
-
-  // progress through graph, printing owners as you go
-  while ( currentNode != NULL ) {
-    
-    // remember next column
-    nextRowNode = currentNode->above;
-        
-    while ( currentNode != NULL ) {
-
-      // print space if not the first character
-      if ( x != homeNodeX ) mvwaddch( window, y, x++, ' ' );
-      
-      // print owner in next space
-      if ( *currentNode->owner == ONE ) {
-	
-	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
-	mvwaddch( window, y, x++, '1' );
-	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
-	
-      } else if ( *currentNode->owner == TWO ) {
-	
-       	if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
-	mvwaddch( window, y, x++, '2' );
-	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
-	
-      } else
-	mvwaddch( window, y, x++, '0' );
-
-      // move to next node
-      currentNode = currentNode->right;
-    }
-
-    refresh();
-
-    // if top of window has not been reached, increment y
-    if ( y < termRows ) --y;
-
-    // reset x to start of row
-    x = homeNodeX;
-
-    // move to next column
-    currentNode = nextRowNode;
-  }
-  
-  return;
-}
-
-
 /*  Check if token would win in given game board graph structure  */
 
 int IsWinningMove(BoardNode * homeNode, int column, PLAYER player)
@@ -359,6 +266,114 @@ int IsWinningMove(BoardNode * homeNode, int column, PLAYER player)
   // code should never reach this point
   return -2;
 
+}
+
+
+/*  Explores board recursively, viewing future moves to deliver best play decision  */
+
+int Negamax(BoardNode * homeNode, int column)
+{
+  return 0;
+}
+
+
+/*  Initiates negamax function to deliver best play decision  */
+
+int WeakSolver(BoardNode * homeNode)
+{
+  return 0;
+}
+
+/*  Print game board graph structure  */
+
+void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
+		     WINDOW * window, int termRows, int termCols,
+		     int cursorCol)
+{
+  // pointers for graph navigation
+  BoardNode * currentNode = homeNode;
+  BoardNode * nextRowNode;
+
+  // calculate location of homeNode (X, Y)
+  int homeNodeX = ( ( termCols / 2 ) - ( boardCols ) );
+  int homeNodeY = ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 );
+
+  // bound to prevent ncurses print error
+  if ( homeNodeX < 0 ) homeNodeX = 0;
+  if ( homeNodeY > ( termRows - 1 ) ) homeNodeY = ( termRows - 1 );
+
+  // set incrementers for print corrdinates
+  int x = homeNodeX;
+  int y = homeNodeY;
+
+  // define color options if available
+  if ( has_colors() == TRUE ) {
+    init_pair(1, COLOR_RED, COLOR_BLACK);
+    init_pair(2, COLOR_GREEN, COLOR_BLACK);
+  }
+
+  // print cursor to screen first
+  // keep column within bounds
+  if ( cursorCol < 0 ) cursorCol = 0;
+  if ( cursorCol > ( boardCols - 1 ) ) cursorCol = ( boardCols - 1 );
+
+  // print cursor row
+  for ( int i = 0 ; i < boardCols ; i++ ) {
+    if ( x != homeNodeX ) mvwaddch( window, y, x++, ' ' );
+    if ( i == cursorCol ) mvwaddch( window, y, x++, '^' );
+    else mvwaddch( window, y, x++, ' ' );
+  }
+
+  // if top of window has not been reached, increment y
+  if ( y < termRows ) --y;
+
+  // reset x to start of row
+  x = homeNodeX;  
+
+  // progress through graph, printing owners as you go
+  while ( currentNode != NULL ) {
+    
+    // remember next column
+    nextRowNode = currentNode->above;
+        
+    while ( currentNode != NULL ) {
+
+      // print space if not the first character
+      if ( x != homeNodeX ) mvwaddch( window, y, x++, ' ' );
+      
+      // print owner in next space
+      if ( *currentNode->owner == ONE ) {
+	
+	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
+	mvwaddch( window, y, x++, '1' );
+	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
+	
+      } else if ( *currentNode->owner == TWO ) {
+	
+       	if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
+	mvwaddch( window, y, x++, '2' );
+	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
+	
+      } else
+	mvwaddch( window, y, x++, '0' );
+
+      // move to next node
+      currentNode = currentNode->right;
+    }
+
+    refresh();
+
+    // if top of window has not been reached, increment y
+    if ( y < termRows ) --y;
+
+    // reset x to start of row
+    x = homeNodeX;
+
+    // move to next column
+    currentNode = nextRowNode;
+  }
+  
+  return;
 }
 
 

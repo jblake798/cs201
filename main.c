@@ -588,11 +588,21 @@ int main (void)
       mvwaddstr( gameWindow, 0, 0, "COMPUTER TURN");
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 
-      // TODO AI MOVE
+      // determine column to play
+      int decision = WeakSolver( homeNode );
 
-      DropToken( homeNode, cursor, TWO );
+      // check if winning move ; break if so
+      if ( IsWinningMove( homeNode, decision, TWO ) ) {
+	DropToken( homeNode, decision, TWO );
+	PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	refresh();
+	winner = TWO;
+	state = WIN_CONDITION;
+	break;
+      }
 
-      // TODO CHECK FOR WIN
+      // play decision
+      DropToken( homeNode, decision, TWO );
 
       // go to next turn
       state = PLAYER_ONE_TURN;

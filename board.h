@@ -39,9 +39,12 @@ BoardNode * CreateBoard(int, int);
 BoardNode * NewNode();
 
 int DropToken(BoardNode *, int, PLAYER);
-void PrintBoard(BoardNode *, int, int, WINDOW *, int, int, int);
-
 int IsWinningMove(BoardNode *, int, PLAYER);
+
+int Negamax(BoardNode *, int)
+int WeakSolver(BoardNode *)
+
+void PrintBoard(BoardNode *, int, int, WINDOW *, int, int, int);
 
 void FreeBoard(BoardNode *);
 
