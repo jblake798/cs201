@@ -167,7 +167,7 @@ int IsWinningMove(BoardNode * homeNode, int column, PLAYER player)
     currentNode = currentNode->right;
 
     // if column does not exist, report error
-    if ( currentNode == NULL ) return -1;
+    if ( currentNode == NULL ) return -2;
   }
 
   // move up column until empty node found. search surroundings if found
@@ -291,11 +291,11 @@ int AIDecision(BoardNode * homeNode, int columns)
     score = WeakNegamax( homeNode, i );
     
     // if score leads to win, return decision
-    if ( result == 1 ) return i;
+    if ( score == 1 ) return i;
 
     // else, if it leads to a tie, decide to play there,
     // but iterate again to look for better option
-    else if ( result == 0 ) decision = i;
+    else if ( score == 0 ) decision = i;
   }
 
   // return the decision

@@ -35,6 +35,7 @@ typedef enum { INITIALIZATION,
 	       PLAYER_ONE_TURN,
 	       PLAYER_TWO_TURN,
 	       COMPUTER_TURN,
+	       DRAW_CONDITION,
 	       WIN_CONDITION,
 	       CLOSE_GAME,
 	       QUIT,
@@ -316,8 +317,10 @@ int main (void)
       if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
 	mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
 
-      // create variable for finding winner
+      // create variables for keeping track of game information
       PLAYER winner = NONE;
+      int move = 0;
+      int movesMax = boardCols * boardRows;
 
 
       // go to proper first turn state
@@ -420,7 +423,7 @@ int main (void)
       if ( state == CLOSE_GAME ) break;
 
       // check if winning move
-      if ( IsWinningMove( homeNode, cursor, ONE ) ) {
+      if ( IsWinningMove( homeNode, cursor, ONE ) == 1 ) {
 	DropToken( homeNode, cursor, ONE );
 	PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	refresh();
@@ -442,13 +445,24 @@ int main (void)
 	sleep(2);
 
 	// clear error
-	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) ), ( ( termCols / 2 ) - ( boardCols ) ), "           " );
+	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "           " );
 	refresh();
 	
 	// send back to start of turn
 	state = PLAYER_ONE_TURN;
 	break;
 	
+      }
+
+      // print board
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      refresh();
+
+      // increment move counter and check if draw
+      ++move;
+      if ( move == movesMax ) {
+	state = DRAW_CONDITION;
+	break;
       }
 
       // go to next turn
@@ -539,7 +553,7 @@ int main (void)
       if ( state == CLOSE_GAME ) break;
 
       // check if winning move
-      if ( IsWinningMove( homeNode, cursor, TWO ) ) {
+      if ( IsWinningMove( homeNode, cursor, TWO ) == 1 ) {
 	DropToken( homeNode, cursor, TWO );
 	PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	refresh();
@@ -561,13 +575,24 @@ int main (void)
 	sleep(2);
 
 	// clear error
-	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) ), ( ( termCols / 2 ) - ( boardCols ) ), "           " );
+	mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "           " );
 	refresh();
 	
 	// send back to start of turn
 	state = PLAYER_TWO_TURN;
 	break;
 	
+      }
+
+      // print board
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      refresh();
+
+      // increment move counter and check if draw
+      ++move;
+      if ( move == movesMax ) {
+	state = DRAW_CONDITION;
+	break;
       }
 
       // go to next turn
@@ -594,7 +619,7 @@ int main (void)
       // check if winning move ; break if so
       if ( IsWinningMove( homeNode, decision, TWO ) ) {
 	DropToken( homeNode, decision, TWO );
-	PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, decision );
 	refresh();
 	winner = TWO;
 	state = WIN_CONDITION;
@@ -604,11 +629,33 @@ int main (void)
       // play decision
       DropToken( homeNode, decision, TWO );
 
+      // print board
+      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      refresh();
+
+      // increment move counter and check if draw
+      ++move;
+      if ( move == movesMax ) {
+	state = DRAW_CONDITION;
+	break;
+      }
+
       // go to next turn
       state = PLAYER_ONE_TURN;
 
       break;
 
+
+    case DRAW_CONDITION: /* IT'S A TIE! */
+
+      mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "IT'S A TIE" );
+      refresh();
+
+      sleep(2);
+
+      state = CLOSE_GAME;
+
+      break;
 
     case WIN_CONDITION: /* WINNING STATE */
 
