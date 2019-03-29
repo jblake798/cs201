@@ -41,8 +41,8 @@ BoardNode * NewNode();
 int DropToken(BoardNode *, int, PLAYER);
 int IsWinningMove(BoardNode *, int, PLAYER);
 
-int Negamax(BoardNode *, int)
-int WeakSolver(BoardNode *)
+int WeakNegamax(BoardNode *, int);
+int AIDecision(BoardNode *, int);
 
 void PrintBoard(BoardNode *, int, int, WINDOW *, int, int, int);
 

@@ -121,7 +121,7 @@ BoardNode * NewNode()
   return newNode;
 }
 
-
+  
 /*  Drop token in game board graph structure  */
 
 int DropToken(BoardNode * homeNode, int column, PLAYER player)
@@ -271,7 +271,7 @@ int IsWinningMove(BoardNode * homeNode, int column, PLAYER player)
 
 /*  Explores board recursively, viewing future moves to deliver best play decision  */
 
-int Negamax(BoardNode * homeNode, int column)
+int WeakNegamax(BoardNode * homeNode, int column)
 {
   return 0;
 }
@@ -279,10 +279,29 @@ int Negamax(BoardNode * homeNode, int column)
 
 /*  Initiates negamax function to deliver best play decision  */
 
-int WeakSolver(BoardNode * homeNode)
+int AIDecision(BoardNode * homeNode, int columns)
 {
-  return 0;
+  int decision = 0;
+  int score = 0;
+
+  // iterate through columns
+  for ( int i = 0 ; i < columns ; i++ ) {
+    
+    // calculate column score
+    score = WeakNegamax( homeNode, i );
+    
+    // if score leads to win, return decision
+    if ( result == 1 ) return i;
+
+    // else, if it leads to a tie, decide to play there,
+    // but iterate again to look for better option
+    else if ( result == 0 ) decision = i;
+  }
+
+  // return the decision
+  return decision;
 }
+
 
 /*  Print game board graph structure  */
 

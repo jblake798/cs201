@@ -589,7 +589,7 @@ int main (void)
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 
       // determine column to play
-      int decision = WeakSolver( homeNode );
+      int decision = AIDecision( homeNode, boardCols );
 
       // check if winning move ; break if so
       if ( IsWinningMove( homeNode, decision, TWO ) ) {
