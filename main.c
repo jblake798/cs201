@@ -275,7 +275,7 @@ int main (void)
 
 
     case GAME_WINDOW_INIT: /* GAME WINDOW START */
-      
+
       // initialize ncurses
       if ( gameWindow == NULL ) {
 	if ( ( gameWindow = initscr() ) == NULL ) {
@@ -614,7 +614,7 @@ int main (void)
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 
       // determine column to play
-      int decision = AIDecision( homeNode, boardCols );
+      int decision = AIDecision( homeNode, boardRows, boardCols, move );
 
       // check if winning move ; break if so
       if ( IsWinningMove( homeNode, decision, TWO ) ) {

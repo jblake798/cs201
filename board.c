@@ -97,6 +97,53 @@ BoardNode * CreateBoard(int rows, int columns)
 }
 
 
+/*  Copy game board graph structure into new node  */
+
+BoardNode * CopyBoard( BoardNode * homeNode, int boardRows, int boardCols )
+{
+  BoardNode * newHomeNode = CreateBoard( boardRows, boardCols );
+
+  // pointer for graph navigation
+  BoardNode * currentNodeOne = homeNode;
+  BoardNode * currentNodeTwo = newHomeNode;
+
+  BoardNode * rootColNodeOne = homeNode;
+  BoardNode * rootColNodeTwo = newHomeNode;
+
+  // navigate to desired column
+  int j = 0;
+  for ( int i = 0 ; i < boardCols ; i++ ) {
+    
+    while ( currentNodeOne != NULL ) {
+
+      if ( *currentNodeOne->owner == NONE ) break;
+      
+      printf("%d %d\n\n", ++j, i);
+      
+      // copy data
+      currentNodeTwo->owner = currentNodeOne->owner;
+
+      // move to next node
+      currentNodeOne = currentNodeOne->above;
+      currentNodeTwo = currentNodeTwo->above;
+
+    }
+
+    // move pointer to next column
+    rootColNodeOne = rootColNodeOne->right;
+    rootColNodeTwo = rootColNodeTwo->right;
+
+    // progress to next column
+    currentNodeOne = rootColNodeOne;
+    currentNodeTwo = rootColNodeTwo;
+      
+  }
+
+  return newHomeNode;
+
+}
+
+
 /*  Create new node for game board graph structure  */
 
 BoardNode * NewNode()
@@ -121,11 +168,44 @@ BoardNode * NewNode()
   return newNode;
 }
 
+
+/*  Check if column is playable in game board graph structure  */
+
+int CanPlay(BoardNode * homeNode, int column)
+{
+
+  // pointer for graph navigation
+  BoardNode * currentNode = homeNode;
+
+  // navigate to desired column
+  for ( int i = 0 ; i < column ; i++ ) {
+    currentNode = currentNode->right;
+
+    // if column does not exist, report error
+    if ( currentNode == NULL ) return -1;
+  }
+
+  // move up column until empty node found. change ownership when found
+  while ( currentNode != NULL ) {
+    if ( *currentNode->owner == NONE )
+      return 1;
+    currentNode = currentNode->above;
+  }
+
+  // catch if pointer reached top of column without finding empty node
+  if ( currentNode == NULL ) return 0;
+
+  // code should never reach this point
+  return -2;
+
+}
+
   
 /*  Drop token in game board graph structure  */
 
 int DropToken(BoardNode * homeNode, int column, PLAYER player)
 {
+  
   // pointer for graph navigation
   BoardNode * currentNode = homeNode;
 
@@ -271,24 +351,63 @@ int IsWinningMove(BoardNode * homeNode, int column, PLAYER player)
 
 /*  Explores board recursively, viewing future moves to deliver best play decision  */
 
-int WeakNegamax(BoardNode * homeNode, int column)
+int WeakNegamax(BoardNode * homeNode, int column, int move, int boardRows, int boardCols, PLAYER player, int alpha, int beta)
 {
-  return 0;
+  // if tie, return 0
+  if ( move == ( boardRows * boardCols ) ) return 0;
+
+  // check if current player will win the next move
+  for ( int i = 0 ; i < boardCols ; i++ )
+    if ( ( CanPlay( homeNode, i ) == 1 ) && ( IsWinningMove( homeNode, i, player ) == 1 ) )
+      return ( ( ( boardRows * boardCols ) + 1 - move ) / 2 );
+
+  // prune branch of recursion graph if necessary
+  int max = ( ( ( boardRows * boardCols ) + 1 - move ) / 2 );
+  if ( beta > max ) {
+    beta = max;
+    if ( alpha >= beta ) return beta;
+  }
+
+  // compute the score of all possible next moves and keep the best one
+  for ( int i = 0 ; i < boardCols ; i++ )
+    if ( CanPlay( homeNode, i ) == 1 ) {
+      
+      BoardNode * newHomeNode = CopyBoard( homeNode, boardRows, boardCols );
+
+      DropToken( newHomeNode, i, player );
+      ++move;
+
+      if ( player == TWO ) player = ONE;
+      else if ( player == ONE ) player = TWO;
+      
+      int score = -WeakNegamax( newHomeNode, i, move, boardRows, boardCols, player, -beta, -alpha );
+
+      FreeBoard( newHomeNode );
+
+      if ( score >= beta ) return score;
+      if ( score > alpha ) alpha = score;
+      
+    }
+
+  return alpha;
+  
 }
 
 
 /*  Initiates negamax function to deliver best play decision  */
 
-int AIDecision(BoardNode * homeNode, int columns)
+int AIDecision(BoardNode * homeNode, int boardRows, int boardCols, int move)
 {
   int decision = 0;
   int score = 0;
 
   // iterate through columns
-  for ( int i = 0 ; i < columns ; i++ ) {
+  for ( int i = 0 ; i < boardCols ; i++ ) {
     
     // calculate column score
-    score = WeakNegamax( homeNode, i );
+    BoardNode * newHomeNode = CopyBoard( homeNode, boardCols, boardRows );
+    score = WeakNegamax( newHomeNode, i, move, boardRows, boardCols, TWO, -1, 1 );
+    FreeBoard( newHomeNode );
     
     // if score leads to win, return decision
     if ( score == 1 ) return i;

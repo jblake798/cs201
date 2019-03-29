@@ -38,11 +38,14 @@ typedef struct boardnode {
 BoardNode * CreateBoard(int, int);
 BoardNode * NewNode();
 
+BoardNode * CopyBoard( BoardNode *, int, int);
+
+int CanPlay(BoardNode *, int);
 int DropToken(BoardNode *, int, PLAYER);
 int IsWinningMove(BoardNode *, int, PLAYER);
 
-int WeakNegamax(BoardNode *, int);
-int AIDecision(BoardNode *, int);
+int WeakNegamax(BoardNode *, int, int, int, int, PLAYER, int, int);
+int AIDecision(BoardNode *, int, int, int);
 
 void PrintBoard(BoardNode *, int, int, WINDOW *, int, int, int);
 
