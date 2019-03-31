@@ -104,8 +104,7 @@ void handler(int signum)
 
 void CleanUp ()
 {
-  
-  extern BoardNode * homeNode;
+
   extern WINDOW * gameWindow;
   extern int oldcur;
 
@@ -115,8 +114,5 @@ void CleanUp ()
     if ( isendwin() == FALSE ) endwin();
     refresh();
   } gameWindow = NULL;
-
-  if ( homeNode != NULL ) FreeBoard(homeNode);
-  homeNode = NULL;
     
 }

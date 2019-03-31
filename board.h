@@ -40,14 +40,14 @@ BoardNode * NewNode();
 
 BoardNode * CopyBoard( BoardNode *, int, int);
 
-int CanPlay(BoardNode *, int);
+int CanPlay(int *, int, int);
 int DropToken(BoardNode *, int, PLAYER);
-int IsWinningMove(BoardNode *, int, PLAYER);
+int IsWinningMove(int **, int *, int, int, int, int);
 
-int WeakNegamax(BoardNode *, int, int, int, int, PLAYER, int, int);
+int WeakNegamax(int **, int *, int, int, int, int, int, int);
 int AIDecision(BoardNode *, int, int, int);
 
-void PrintBoard(BoardNode *, int, int, WINDOW *, int, int, int);
+void PrintBoard(int **, int, int, WINDOW *, int, int, int);
 
 void FreeBoard(BoardNode *);
 

@@ -46,7 +46,6 @@ typedef enum { INITIALIZATION,
 // global variables
 
 WINDOW * gameWindow = NULL;
-BoardNode * homeNode = NULL;
 int oldcur;
 
 int pvpGames = 0;
@@ -299,17 +298,27 @@ int main (void)
 	init_pair(2, COLOR_GREEN, COLOR_BLACK);
       } else printf("\nNOTE :: Your terminal does not support color\n");
 
-      // create variable for finding user input
-      int key;
-
       // create board with set dimensions
-      homeNode = CreateBoard( boardRows, boardCols );
+      int **board = (int **) malloc( boardCols * sizeof(int*) );
+      for ( int i = 0 ; i < boardCols ; i++ )
+	board[i] = (int *) malloc( boardRows * sizeof(int) );
+      for ( int i = 0 ; i < boardCols ; i++ )
+	for ( int j = 0 ; j < boardRows ; j++ )
+	  board[i][j] = 0;
 
+      // create array that tracks how much each column is full
+      int *height = (int *) malloc( boardCols * sizeof(int) );
+      for ( int i = 0 ; i < boardCols ; i++ )
+	height[i] = 0;
+      
       // create variable for choosing column
       int cursor = 0;
 
+      // create variable for finding user input
+      int key;
+
       // print board and infographics
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
       refresh();
 
@@ -343,7 +352,7 @@ int main (void)
 
       // set cursor to start
       cursor = 0;
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
       refresh();
 
@@ -364,7 +373,7 @@ int main (void)
 	case 'd':
 	case 'D':
 	  if ( cursor < ( boardCols - 1 ) ) ++cursor;
-	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  refresh();
 	  break;
 
@@ -372,7 +381,7 @@ int main (void)
 	case 'a':
 	case 'A':
 	  if ( cursor > 0 ) --cursor;
-	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  refresh();
 	  break;
 
@@ -402,7 +411,7 @@ int main (void)
 	  
 	  werase( gameWindow );
 	  
-	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
 	  
 	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
@@ -423,9 +432,9 @@ int main (void)
       if ( state == CLOSE_GAME ) break;
 
       // check if winning move
-      if ( IsWinningMove( homeNode, cursor, ONE ) == 1 ) {
-	DropToken( homeNode, cursor, ONE );
-	PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      if ( IsWinningMove( board, height, boardRows, boardCols, cursor, 1 ) == 1 ) {
+	board[cursor][height[cursor]] = 1;
+	PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	refresh();
 	winner = ONE;
 	state = WIN_CONDITION;
@@ -433,7 +442,13 @@ int main (void)
       }
 
       // place token in desired column, catch error if column full
-      if ( DropToken( homeNode, cursor, ONE ) == 0 ) {
+      if ( CanPlay( height, boardRows, cursor ) ) {
+
+	board[cursor][height[cursor]] = 1;
+	height[cursor]++;
+	move++;
+
+      } else {	
 	
 	// print error
 	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
@@ -455,11 +470,10 @@ int main (void)
       }
 
       // print board
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       refresh();
 
-      // increment move counter and check if draw
-      ++move;
+      // check if draw
       if ( move == movesMax ) {
 	state = DRAW_CONDITION;
 	break;
@@ -476,7 +490,7 @@ int main (void)
 
       // set cursor to start
       cursor = 0;
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
       refresh();
 
@@ -496,7 +510,7 @@ int main (void)
 	case 'd':
 	case 'D':
 	  if ( cursor < ( boardCols - 1 ) ) ++cursor;
-	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  refresh();
 	  break;
 
@@ -504,7 +518,7 @@ int main (void)
 	case 'a':
 	case 'A':
 	  if ( cursor > 0 ) --cursor;
-	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  refresh();
 	  break;
 
@@ -533,7 +547,7 @@ int main (void)
 	  
 	  werase( gameWindow );
 	  
-	  PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
 	  
 	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
@@ -553,9 +567,9 @@ int main (void)
       if ( state == CLOSE_GAME ) break;
 
       // check if winning move
-      if ( IsWinningMove( homeNode, cursor, TWO ) == 1 ) {
-	DropToken( homeNode, cursor, TWO );
-	PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      if ( IsWinningMove( board, height, boardRows, boardCols, cursor, 2 ) == 1 ) {
+	board[cursor][height[cursor]] = 2;
+	PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	refresh();
 	winner = TWO;
 	state = WIN_CONDITION;
@@ -563,7 +577,13 @@ int main (void)
       }
 
       // place token in desired column, catch error if column full
-      if ( DropToken( homeNode, cursor, TWO ) == 0 ) {
+      if ( CanPlay( height, boardRows, cursor ) ) {
+
+	board[cursor][height[cursor]] = 2;
+	height[cursor]++;
+	move++;
+
+      } else {	
 	
 	// print error
 	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
@@ -585,11 +605,10 @@ int main (void)
       }
 
       // print board
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       refresh();
 
       // increment move counter and check if draw
-      ++move;
       if ( move == movesMax ) {
 	state = DRAW_CONDITION;
 	break;
@@ -604,22 +623,79 @@ int main (void)
 
       // set cursor to start
       cursor = 0;
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
+      
       refresh();
 
       // print player turn
       if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
-      mvwaddstr( gameWindow, 0, 0, "COMPUTER TURN");
+      mvwaddstr( gameWindow, 0, 0, "COMPUTER TURN  ");
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 
-      // determine column to play
-      int decision = AIDecision( homeNode, boardRows, boardCols, move );
+      refresh();
+
+      int decision = 0;
+      int score = 0;
+      int oldScore = -100;
+
+      // check if current player will win the next move
+      for ( int i = 0 ; i < boardCols ; i++ )
+	if ( ( CanPlay( height, boardRows, i) == 1 ) && ( IsWinningMove( board, height, boardRows, boardCols, i, 2 ) == 1 ) ) {
+	  decision = i;
+	}
+      
+
+      // iterate through columns
+      for ( int i = 0 ; i < boardCols ; i++ ) {
+
+	if ( CanPlay( height, boardRows, i ) == 1 ) {
+
+	  if ( IsWinningMove( board, height, boardRows, boardCols, i, 2 ) == 1 )
+	    score = boardRows * boardCols;
+
+	  else {
+	  
+	    // create board with set dimensions
+	    int **newBoard = (int **) malloc( boardCols * sizeof(int*) );
+	    for ( int j = 0 ; j < boardCols ; j++ )
+	      newBoard[j] = (int *) malloc( boardRows * sizeof(int) );
+	    for ( int j = 0 ; j < boardCols ; j++ )
+	      for ( int k = 0 ; k < boardRows ; k++ )
+		newBoard[j][k] = board[j][k];
+
+	    int *newHeight = (int *) malloc( boardCols * sizeof(int) );
+	    for ( int j = 0 ; j < boardCols ; j++ )
+	      newHeight[j] = height[j];
+
+	    newBoard[i][newHeight[i]] = 2;
+	    newHeight[i]++;
+
+	    // calculate score for column
+	    score = -WeakNegamax( newBoard, newHeight, move+1, boardRows, boardCols, 1, (boardCols*boardRows/2), (-boardCols*boardRows/2) );
+
+	    // free function
+	    for ( int j = 0 ; j < boardCols ; j++ )
+	      free( newBoard[j] );
+	    free( newBoard );
+
+	    free( newHeight );
+
+	  }
+    
+	  // if score leads to win, return decision
+	  if ( score > oldScore )
+	    decision = i;
+	  oldScore = score;
+
+	}
+
+      }
 
       // check if winning move ; break if so
-      if ( IsWinningMove( homeNode, decision, TWO ) ) {
-	DropToken( homeNode, decision, TWO );
-	PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, decision );
+      if ( IsWinningMove( board, height, boardRows, boardCols, decision, 2 ) == 1 ) {
+	board[decision][height[decision]] = 2;
+	PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, decision );
 	refresh();
 	winner = TWO;
 	state = WIN_CONDITION;
@@ -627,14 +703,15 @@ int main (void)
       }
 
       // play decision
-      DropToken( homeNode, decision, TWO );
+      board[decision][height[decision]] = 2;
+      height[decision]++;
+      move++;
 
       // print board
-      PrintBoard( homeNode, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+      PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       refresh();
 
       // increment move counter and check if draw
-      ++move;
       if ( move == movesMax ) {
 	state = DRAW_CONDITION;
 	break;
@@ -644,7 +721,7 @@ int main (void)
       state = PLAYER_ONE_TURN;
 
       break;
-
+      
 
     case DRAW_CONDITION: /* IT'S A TIE! */
 
@@ -652,7 +729,7 @@ int main (void)
       refresh();
 
       sleep(2);
-
+      
       state = CLOSE_GAME;
 
       break;
@@ -724,8 +801,12 @@ int main (void)
     case CLOSE_GAME: /* CLOSE GAME BOARD AND RETURN TO INIT */
 
       endwin();
-      FreeBoard(homeNode);
-      homeNode = NULL;
+      
+      // free function
+      for ( int i = 0 ; i < boardCols ; i++ )
+	free( board[i] );
+      free( board );
+      free( height );
 
       printf("\nGoing to main menu...\n");
 

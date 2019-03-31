@@ -21,368 +21,132 @@
 #include "board.h"
 
 
-/*  Create game board graph structure  */
-
-BoardNode * CreateBoard(int rows, int columns)
-{
-  // create homeNode (what board will be referenced by)
-  BoardNode * homeNode = NewNode();
-
-  // pointers for graph navigation
-  BoardNode * rootColNode = homeNode;
-  BoardNode * currentNode = NULL;
-  BoardNode * leftHelperNode = NULL;
-  BoardNode * newNode = NULL;
-
-  for ( int j = 0 ; j < columns ; j++ ) {
-
-    // move pointer to root of new column
-    currentNode = rootColNode;
-
-    for ( int i = 0 ; i < ( rows - 1 ) ; i++ ) {
-
-      // create new node
-      newNode = NewNode();
-
-      // link to current node below
-      newNode->below = currentNode;
-      currentNode->above = newNode;
-
-      // link to nodes in left column if left column present
-      if ( leftHelperNode != NULL ) {
-	// move helper node up one
-	leftHelperNode = leftHelperNode->above;
-
-	// link new node to below left and left
-	newNode->belowLeft = leftHelperNode->below;
-	leftHelperNode->below->aboveRight = newNode;
-
-	newNode->left = leftHelperNode;
-	leftHelperNode->right = newNode;
-
-	// if node exists, link new node to above left
-	if ( leftHelperNode->above != NULL ) {
-	  newNode->aboveLeft = leftHelperNode->above;
-	  leftHelperNode->above->belowRight = newNode;
-	}
-      }
-
-      // move pointer to new node
-      currentNode = newNode;
-    }
-
-    // start new column to right if necessary
-    if ( j != ( columns - 1 ) ) {
-      
-      // create root of next column
-      newNode = NewNode();
-
-      // link new node to left and above left
-      newNode->left = rootColNode;
-      rootColNode->right = newNode;
-
-      newNode->aboveLeft = rootColNode->above;
-      rootColNode->above->belowRight = newNode;
-    
-      // move root column pointer and helper over one
-      leftHelperNode = rootColNode;
-      rootColNode = newNode;
-    }
-
-  }
-
-  // return homeNode of graph to user
-  return homeNode;
-  
-}
-
-
-/*  Copy game board graph structure into new node  */
-
-BoardNode * CopyBoard( BoardNode * homeNode, int boardRows, int boardCols )
-{
-  BoardNode * newHomeNode = CreateBoard( boardRows, boardCols );
-
-  // pointer for graph navigation
-  BoardNode * currentNodeOne = homeNode;
-  BoardNode * currentNodeTwo = newHomeNode;
-
-  BoardNode * rootColNodeOne = homeNode;
-  BoardNode * rootColNodeTwo = newHomeNode;
-
-  // navigate to desired column
-  int j = 0;
-  for ( int i = 0 ; i < boardCols ; i++ ) {
-    
-    while ( currentNodeOne != NULL ) {
-
-      if ( *currentNodeOne->owner == NONE ) break;
-      
-      printf("%d %d\n\n", ++j, i);
-      
-      // copy data
-      currentNodeTwo->owner = currentNodeOne->owner;
-
-      // move to next node
-      currentNodeOne = currentNodeOne->above;
-      currentNodeTwo = currentNodeTwo->above;
-
-    }
-
-    // move pointer to next column
-    rootColNodeOne = rootColNodeOne->right;
-    rootColNodeTwo = rootColNodeTwo->right;
-
-    // progress to next column
-    currentNodeOne = rootColNodeOne;
-    currentNodeTwo = rootColNodeTwo;
-      
-  }
-
-  return newHomeNode;
-
-}
-
-
-/*  Create new node for game board graph structure  */
-
-BoardNode * NewNode()
-{
-  // allocate memory for node
-  BoardNode * newNode = (BoardNode *) malloc( sizeof(BoardNode) );
-
-  // allocate memory for player variable
-  newNode->owner = (PLAYER *) malloc( sizeof(PLAYER) );
-  *newNode->owner = NONE;
-
-  // initialize pointers to NULL
-  newNode->above      = NULL;
-  newNode->below      = NULL;
-  newNode->left       = NULL;
-  newNode->right      = NULL;
-  newNode->aboveLeft  = NULL;
-  newNode->aboveRight = NULL;
-  newNode->belowLeft  = NULL;
-  newNode->belowRight = NULL;
-
-  return newNode;
-}
-
-
 /*  Check if column is playable in game board graph structure  */
 
-int CanPlay(BoardNode * homeNode, int column)
+int CanPlay(int * height, int boardRows, int column)
 {
 
-  // pointer for graph navigation
-  BoardNode * currentNode = homeNode;
-
-  // navigate to desired column
-  for ( int i = 0 ; i < column ; i++ ) {
-    currentNode = currentNode->right;
-
-    // if column does not exist, report error
-    if ( currentNode == NULL ) return -1;
-  }
-
-  // move up column until empty node found. change ownership when found
-  while ( currentNode != NULL ) {
-    if ( *currentNode->owner == NONE )
-      return 1;
-    currentNode = currentNode->above;
-  }
-
-  // catch if pointer reached top of column without finding empty node
-  if ( currentNode == NULL ) return 0;
-
-  // code should never reach this point
-  return -2;
-
-}
-
-  
-/*  Drop token in game board graph structure  */
-
-int DropToken(BoardNode * homeNode, int column, PLAYER player)
-{
-  
-  // pointer for graph navigation
-  BoardNode * currentNode = homeNode;
-
-  // navigate to desired column
-  for ( int i = 0 ; i < column ; i++ ) {
-    currentNode = currentNode->right;
-
-    // if column does not exist, report error
-    if ( currentNode == NULL ) return -1;
-  }
-
-  // move up column until empty node found. change ownership when found
-  while ( currentNode != NULL ) {
-    if ( *currentNode->owner == NONE ) {
-      *currentNode->owner = player;
-      return 1;
-    }
-    currentNode = currentNode->above;
-  }
-
-  // catch if pointer reached top of column without finding empty node
-  if ( currentNode == NULL ) return 0;
-
-  // code should never reach this point
-  return -2;
+  if ( height[column] < boardRows ) return 1;
+  else return 0;
 
 }
 
 
 /*  Check if token would win in given game board graph structure  */
 
-int IsWinningMove(BoardNode * homeNode, int column, PLAYER player)
+int IsWinningMove(int ** board, int * height, int boardRows, int boardCols, int column, int player)
 {
-  // pointer for graph navigation
-  BoardNode * currentNode = homeNode;
-
-  // navigate to desired column
-  for ( int i = 0 ; i < column ; i++ ) {
-    currentNode = currentNode->right;
-
-    // if column does not exist, report error
-    if ( currentNode == NULL ) return -2;
-  }
-
-  // move up column until empty node found. search surroundings if found
-  while ( currentNode != NULL ) {
+  
+  // check for vertical alignments
+  if( ( height[column] >= 3 )
+      && ( board[column][height[column]-1] == player )
+      && ( board[column][height[column]-2] == player )
+      && ( board[column][height[column]-3] == player ) )
+    return 1;
+  
+  // Iterate on horizontal (dy = 0) or two diagonal directions (dy = -1 or dy = 1).
+  for ( int dy = -1 ; dy <= 1 ; dy++ ) {
     
-    if ( *currentNode->owner == NONE ) {
-
-      // save node to focus on
-      BoardNode * focusNode = currentNode;
-
-      // check vertical
-      int i = 0;
-      currentNode = currentNode->below;
-      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( i < 3 ) ) {
-	currentNode = currentNode->below;
-	++i;
-      } if ( i == 3 ) return 1;
-
+    int inOrder = 0;
+    
+    // count continuous stones of current player on the left, then right of the played column.
+    for ( int dx = -1 ; dx <= 1 ; dx += 2 ) {
       
-      // reset currentNode and coutners
-      currentNode = focusNode;
-      i = 0;
-      int j = 0;
-
-      // check horizontal
-      // check left
-      currentNode = currentNode->left;
-      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( i < 3 ) ) {
-	currentNode = currentNode->left;
-	++i;
+      int x = column + dx;
+      int y = height[column] + dx * dy;
+      while ( ( x >= 0 )
+	      && ( x < boardCols )
+	      && ( y >= 0 )
+	      && ( y < boardRows )
+	      && ( board[x][y] == player ) ) {
+	x += dx;
+	y += dx * dy;
+	inOrder++;
       }
-      // check right
-      currentNode = focusNode->right;
-      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( j < 3 ) ) {
-	currentNode = currentNode->right;
-	++j;
-      }
-      // compute total in a row and return if 4 in a row
-      if ( ( i + j + 1 ) > 3 ) return 1;
 
+      // there is an aligment if at least 3 other stones of the current user  
+      if( inOrder >= 3 ) return 1;
       
-      // reset currentNode and coutners
-      currentNode = focusNode;
-      i = 0;
-      j = 0;
-
-      // check backslash diagonal
-      // check above left
-      currentNode = currentNode->aboveLeft;
-      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( i < 3 ) ) {
-	currentNode = currentNode->aboveLeft;
-	++i;
-      }
-      // check below right
-      currentNode = focusNode->belowRight;
-      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( j < 3 ) ) {
-	currentNode = currentNode->belowRight;
-	++j;
-      }
-      // compute total in a row and return if 4 in a row
-      if ( ( i + j + 1 ) > 3 ) return 1;
-
-      
-      // reset currentNode and coutners
-      currentNode = focusNode;
-      i = 0;
-      j = 0;
-
-      // check forwardslash diagonal
-      // check above right
-      currentNode = currentNode->aboveRight;
-      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( i < 3 ) ) {
-	currentNode = currentNode->aboveRight;
-	++i;
-      }
-      // check below left
-      currentNode = focusNode->belowLeft;
-      while ( ( currentNode != NULL ) && ( *currentNode->owner == player ) && ( j < 3 ) ) {
-	currentNode = currentNode->belowLeft;
-	++j;
-      }
-      // compute total in a row and return if 4 in a row
-      if ( ( i + j + 1 ) > 3 ) return 1;
-
-
-      // if reaches here, not a winning move
-      return 0;
-
     }
-    currentNode = currentNode->above;
+        
   }
-
-  // catch if pointer reached top of column without finding empty node
-  if ( currentNode == NULL ) return -1;
-
-  // code should never reach this point
-  return -2;
+  
+  return 0;
 
 }
 
 
 /*  Explores board recursively, viewing future moves to deliver best play decision  */
 
-int WeakNegamax(BoardNode * homeNode, int column, int move, int boardRows, int boardCols, PLAYER player, int alpha, int beta)
+int WeakNegamax(int ** board, int * height, int move, int boardRows, int boardCols, int player, int alpha, int beta)
 {
+  
+  //  printf("\nBEGINING RECURSIVE CALL\n");
+  
   // if tie, return 0
-  if ( move == ( boardRows * boardCols ) ) return 0;
+  if ( move == ( boardRows * boardCols ) )
+    return 0;
 
+  //  printf("\n\tTIE CHECK PASSED\n");
+  
   // check if current player will win the next move
   for ( int i = 0 ; i < boardCols ; i++ )
-    if ( ( CanPlay( homeNode, i ) == 1 ) && ( IsWinningMove( homeNode, i, player ) == 1 ) )
+    if ( ( CanPlay( height, boardRows, i) == 1 ) && ( IsWinningMove( board, height, boardRows, boardCols, i, player ) == 1 ) )
       return ( ( ( boardRows * boardCols ) + 1 - move ) / 2 );
 
+  //  printf("\n\tNEXT MOVE WIN CHECK PASSED\n");
+
   // prune branch of recursion graph if necessary
-  int max = ( ( ( boardRows * boardCols ) + 1 - move ) / 2 );
+  int max = ( ( ( boardRows * boardCols ) - 1 - move ) / 2 );
   if ( beta > max ) {
     beta = max;
-    if ( alpha >= beta ) return beta;
+    if ( alpha >= beta )
+      return beta;
   }
+
+  //  printf("\n\tPRUNE CHECK PASSED\n");
 
   // compute the score of all possible next moves and keep the best one
   for ( int i = 0 ; i < boardCols ; i++ )
-    if ( CanPlay( homeNode, i ) == 1 ) {
+    
+    if ( CanPlay( height, boardRows, i ) == 1 ) {
+
+      //      printf("\n\tABOUT TO BUILD NEW BOARD\n");
       
-      BoardNode * newHomeNode = CopyBoard( homeNode, boardRows, boardCols );
+      // create board with set dimensions
+      int **newBoard = (int **) malloc( boardCols * sizeof(int*) );
+      for ( int j = 0 ; j < boardCols ; j++ )
+	newBoard[j] = (int *) malloc( boardRows * sizeof(int) );
+      for ( int j = 0 ; j < boardCols ; j++ )
+	for ( int k = 0 ; k < boardRows ; k++ )
+	  newBoard[j][k] = board[j][k];
 
-      DropToken( newHomeNode, i, player );
-      ++move;
+      int *newHeight = (int *) malloc( boardCols * sizeof(int) );
+      for ( int j = 0 ; j < boardCols ; j++ )
+	newHeight[j] = height[j];
 
-      if ( player == TWO ) player = ONE;
-      else if ( player == ONE ) player = TWO;
+      if ( player == 1 ) newBoard[i][newHeight[i]] = 1;
+      else if ( player == 2 ) newBoard[i][newHeight[i]] = 2;
+      newHeight[i]++;
+      move++;
+
+      if ( player == 2 ) player = 1;
+      else if ( player == 1 ) player = 2;
+
+      //      printf("\n\tPASSING TO NEW FUNCTION\n");
+
+      int score = -WeakNegamax( newBoard, newHeight, move, boardRows, boardCols, player, -beta, -alpha );
+
+      //      printf("\n\tABOUT TO FREE MEMORY\n");
       
-      int score = -WeakNegamax( newHomeNode, i, move, boardRows, boardCols, player, -beta, -alpha );
+      // free function
+      for ( int j = 0 ; j < boardCols ; j++ )
+	free( newBoard[j] );
+      free( newBoard );
 
-      FreeBoard( newHomeNode );
+      free( newHeight );
+
+      //      printf("\n\tMEMORY FREED\n");
 
       if ( score >= beta ) return score;
       if ( score > alpha ) alpha = score;
@@ -394,55 +158,24 @@ int WeakNegamax(BoardNode * homeNode, int column, int move, int boardRows, int b
 }
 
 
-/*  Initiates negamax function to deliver best play decision  */
-
-int AIDecision(BoardNode * homeNode, int boardRows, int boardCols, int move)
-{
-  int decision = 0;
-  int score = 0;
-
-  // iterate through columns
-  for ( int i = 0 ; i < boardCols ; i++ ) {
-    
-    // calculate column score
-    BoardNode * newHomeNode = CopyBoard( homeNode, boardCols, boardRows );
-    score = WeakNegamax( newHomeNode, i, move, boardRows, boardCols, TWO, -1, 1 );
-    FreeBoard( newHomeNode );
-    
-    // if score leads to win, return decision
-    if ( score == 1 ) return i;
-
-    // else, if it leads to a tie, decide to play there,
-    // but iterate again to look for better option
-    else if ( score == 0 ) decision = i;
-  }
-
-  // return the decision
-  return decision;
-}
-
-
 /*  Print game board graph structure  */
 
-void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
+void PrintBoard(int ** board, int boardRows, int boardCols,
 		     WINDOW * window, int termRows, int termCols,
 		     int cursorCol)
 {
-  // pointers for graph navigation
-  BoardNode * currentNode = homeNode;
-  BoardNode * nextRowNode;
-
+  
   // calculate location of homeNode (X, Y)
-  int homeNodeX = ( ( termCols / 2 ) - ( boardCols ) );
-  int homeNodeY = ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 );
+  int homeX = ( ( termCols / 2 ) - ( boardCols ) );
+  int homeY = ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 );
 
   // bound to prevent ncurses print error
-  if ( homeNodeX < 0 ) homeNodeX = 0;
-  if ( homeNodeY > ( termRows - 1 ) ) homeNodeY = ( termRows - 1 );
+  if ( homeX < 0 ) homeX = 0;
+  if ( homeY > ( termRows - 1 ) ) homeY = ( termRows - 1 );
 
   // set incrementers for print corrdinates
-  int x = homeNodeX;
-  int y = homeNodeY;
+  int x = homeX;
+  int y = homeY;
 
   // define color options if available
   if ( has_colors() == TRUE ) {
@@ -457,7 +190,7 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
 
   // print cursor row
   for ( int i = 0 ; i < boardCols ; i++ ) {
-    if ( x != homeNodeX ) mvwaddch( window, y, x++, ' ' );
+    if ( x != homeX ) mvwaddch( window, y, x++, ' ' );
     if ( i == cursorCol ) mvwaddch( window, y, x++, '^' );
     else mvwaddch( window, y, x++, ' ' );
   }
@@ -466,27 +199,24 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
   if ( y < termRows ) --y;
 
   // reset x to start of row
-  x = homeNodeX;  
+  x = homeX;  
 
   // progress through graph, printing owners as you go
-  while ( currentNode != NULL ) {
-    
-    // remember next column
-    nextRowNode = currentNode->above;
-        
-    while ( currentNode != NULL ) {
+  for ( int i = 0 ; i < boardRows ; i++ ) {
+            
+    for ( int j = 0 ; j < boardCols ; j++ ) {
 
       // print space if not the first character
-      if ( x != homeNodeX ) mvwaddch( window, y, x++, ' ' );
+      if ( x != homeX ) mvwaddch( window, y, x++, ' ' );
       
       // print owner in next space
-      if ( *currentNode->owner == ONE ) {
+      if ( board[j][i] == 1 ) {
 	
 	if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
 	mvwaddch( window, y, x++, '1' );
 	if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
 	
-      } else if ( *currentNode->owner == TWO ) {
+      } else if ( board[j][i] == 2 ) {
 	
        	if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
 	mvwaddch( window, y, x++, '2' );
@@ -494,9 +224,6 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
 	
       } else
 	mvwaddch( window, y, x++, '0' );
-
-      // move to next node
-      currentNode = currentNode->right;
     }
 
     refresh();
@@ -505,10 +232,8 @@ void PrintBoard(BoardNode * homeNode, int boardRows, int boardCols,
     if ( y < termRows ) --y;
 
     // reset x to start of row
-    x = homeNodeX;
+    x = homeX;
 
-    // move to next column
-    currentNode = nextRowNode;
   }
   
   return;
