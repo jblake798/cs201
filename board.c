@@ -195,6 +195,8 @@ int AIDecision(int ** board, int * height, int boardRows, int boardCols, int mov
     
   }
 
+  return decision;
+
 }
 
 

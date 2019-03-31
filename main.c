@@ -635,63 +635,8 @@ int main (void)
 
       refresh();
 
-      int decision = 0;
-      int score = 0;
-      int oldScore = -100;
-
-      // check if current player will win the next move
-      for ( int i = 0 ; i < boardCols ; i++ )
-	if ( ( CanPlay( height, boardRows, i) == 1 ) && ( IsWinningMove( board, height, boardRows, boardCols, i, 2 ) == 1 ) ) {
-	  decision = i;
-	}
+      int decision = AIDecision( board, height, boardRows, boardCols, move );
       
-
-      // iterate through columns
-      for ( int i = 0 ; i < boardCols ; i++ ) {
-
-	if ( CanPlay( height, boardRows, i ) == 1 ) {
-
-	  if ( IsWinningMove( board, height, boardRows, boardCols, i, 2 ) == 1 )
-	    score = boardRows * boardCols;
-
-	  else {
-	  
-	    // create board with set dimensions
-	    int **newBoard = (int **) malloc( boardCols * sizeof(int*) );
-	    for ( int j = 0 ; j < boardCols ; j++ )
-	      newBoard[j] = (int *) malloc( boardRows * sizeof(int) );
-	    for ( int j = 0 ; j < boardCols ; j++ )
-	      for ( int k = 0 ; k < boardRows ; k++ )
-		newBoard[j][k] = board[j][k];
-
-	    int *newHeight = (int *) malloc( boardCols * sizeof(int) );
-	    for ( int j = 0 ; j < boardCols ; j++ )
-	      newHeight[j] = height[j];
-
-	    newBoard[i][newHeight[i]] = 2;
-	    newHeight[i]++;
-
-	    // calculate score for column
-	    score = -WeakNegamax( newBoard, newHeight, move+1, boardRows, boardCols, 1, (boardCols*boardRows/2), (-boardCols*boardRows/2) );
-
-	    // free function
-	    for ( int j = 0 ; j < boardCols ; j++ )
-	      free( newBoard[j] );
-	    free( newBoard );
-
-	    free( newHeight );
-
-	  }
-    
-	  // if score leads to win, return decision
-	  if ( score > oldScore )
-	    decision = i;
-	  oldScore = score;
-
-	}
-
-      }
-
       // check if winning move ; break if so
       if ( IsWinningMove( board, height, boardRows, boardCols, decision, 2 ) == 1 ) {
 	board[decision][height[decision]] = 2;
