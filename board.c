@@ -78,23 +78,17 @@ int IsWinningMove(int ** board, int * height, int boardRows, int boardCols, int 
 
 /*  Explores board recursively, viewing future moves to deliver best play decision  */
 
-int WeakNegamax(int ** board, int * height, int move, int boardRows, int boardCols, int player, int alpha, int beta)
+int negamax(int ** board, int * height, int move, int boardRows, int boardCols, int player, int alpha, int beta)
 {
-  
-  //  printf("\nBEGINING RECURSIVE CALL\n");
   
   // if tie, return 0
   if ( move == ( boardRows * boardCols ) )
     return 0;
-
-  //  printf("\n\tTIE CHECK PASSED\n");
   
   // check if current player will win the next move
   for ( int i = 0 ; i < boardCols ; i++ )
     if ( ( CanPlay( height, boardRows, i) == 1 ) && ( IsWinningMove( board, height, boardRows, boardCols, i, player ) == 1 ) )
       return ( ( ( boardRows * boardCols ) + 1 - move ) / 2 );
-
-  //  printf("\n\tNEXT MOVE WIN CHECK PASSED\n");
 
   // prune branch of recursion graph if necessary
   int max = ( ( ( boardRows * boardCols ) - 1 - move ) / 2 );
@@ -104,14 +98,10 @@ int WeakNegamax(int ** board, int * height, int move, int boardRows, int boardCo
       return beta;
   }
 
-  //  printf("\n\tPRUNE CHECK PASSED\n");
-
   // compute the score of all possible next moves and keep the best one
   for ( int i = 0 ; i < boardCols ; i++ )
     
     if ( CanPlay( height, boardRows, i ) == 1 ) {
-
-      //      printf("\n\tABOUT TO BUILD NEW BOARD\n");
       
       // create board with set dimensions
       int **newBoard = (int **) malloc( boardCols * sizeof(int*) );
@@ -133,11 +123,7 @@ int WeakNegamax(int ** board, int * height, int move, int boardRows, int boardCo
       if ( player == 2 ) player = 1;
       else if ( player == 1 ) player = 2;
 
-      //      printf("\n\tPASSING TO NEW FUNCTION\n");
-
-      int score = -WeakNegamax( newBoard, newHeight, move, boardRows, boardCols, player, -beta, -alpha );
-
-      //      printf("\n\tABOUT TO FREE MEMORY\n");
+      int score = -negamax( newBoard, newHeight, move, boardRows, boardCols, player, -beta, -alpha );
       
       // free function
       for ( int j = 0 ; j < boardCols ; j++ )
@@ -146,8 +132,6 @@ int WeakNegamax(int ** board, int * height, int move, int boardRows, int boardCo
 
       free( newHeight );
 
-      //      printf("\n\tMEMORY FREED\n");
-
       if ( score >= beta ) return score;
       if ( score > alpha ) alpha = score;
       
@@ -155,6 +139,62 @@ int WeakNegamax(int ** board, int * height, int move, int boardRows, int boardCo
 
   return alpha;
   
+}
+
+
+/*  Wrapper function for managing AI choice and negamax function  */
+
+int AIDecision(int ** board, int * height, int boardRows, int boardCols, int move)
+{
+  int decision = 0;
+  int score = 0;
+  int oldScore = -boardRows*boardCols;
+
+  // check if current player will win the next move
+  for ( int i = 0 ; i < boardCols ; i++ )
+    if ( ( CanPlay( height, boardRows, i) == 1 ) && ( IsWinningMove( board, height, boardRows, boardCols, i, 2 ) == 1 ) )
+      return i;
+      
+
+  // iterate through columns looking for next best move
+  for ( int i = 0 ; i < boardCols ; i++ ) {
+
+    if ( CanPlay( height, boardRows, i ) == 1 ) {
+
+      // create board with set dimensions
+      int **newBoard = (int **) malloc( boardCols * sizeof(int*) );
+      for ( int j = 0 ; j < boardCols ; j++ )
+	newBoard[j] = (int *) malloc( boardRows * sizeof(int) );
+      for ( int j = 0 ; j < boardCols ; j++ )
+	for ( int k = 0 ; k < boardRows ; k++ )
+	  newBoard[j][k] = board[j][k];
+
+      int *newHeight = (int *) malloc( boardCols * sizeof(int) );
+      for ( int j = 0 ; j < boardCols ; j++ )
+	newHeight[j] = height[j];
+
+      newBoard[i][newHeight[i]] = 2;
+      newHeight[i]++;
+
+      // calculate score for column
+      score = -negamax( newBoard, newHeight, move+1, boardRows, boardCols, 1, (boardCols*boardRows/2), (-boardCols*boardRows/2) );
+
+      // free function
+      for ( int j = 0 ; j < boardCols ; j++ )
+	free( newBoard[j] );
+      free( newBoard );
+
+      free( newHeight );
+
+    }
+    
+    // if score leads to win, return decision
+    if ( score > oldScore )
+      decision = i;
+    oldScore = score;
+    
+  }
+
 }
 
 
