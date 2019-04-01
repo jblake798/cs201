@@ -52,53 +52,27 @@ for input at the same time during two player mode.
 STATE MACHINE FLOW
 ------------------
 
-       +-----------+  
-       | MAIN MENU |  quit  +--------------+  
-+----->+   begin   +------->+ EXIT PROGRAM |  
-|      |   quit    |        +--------------+  
-|      +-----+-----+  
-|            |  
-|            | begin  
-|            v  
-|      +-----+---------+  
-|      | CHOOSE NUMBER |  
-|      |   OF HUMAN    |  
-|      |   PLAYERS     |  
-|      +-----+---------+  
-|            |  
-|            |  
-|            v  
-|      +-----+--------+  
-|      | CHOOSE WHICH |  
-|      | PLAYER WILL  |  
-|      |   GO FIRST   |  
-|      +-----+--------+  
-|            |  
-|            |  
-|            v  
-|      +-----+---------+  
-|      | SPECIFY BOARD |  
-|      | SIZE TO PLAY  +<------------+  
-|      |    GAME ON    |             |  
-|      +-----+---------+             |  
-|            |                       |  
-|            |                       |  
-|            v                       |  
-|      +-----+--------------+        |  
-| menu | CONFIRM GAME START | resize |  
-+<-----+       begin        +--------+  
-^      |       menu         |  
-|      |       resize       |  
-|      +-----+--------------+  
-|            |  
-|            | begin  
-|            v  
-|      +-----+--------------+  
-|      | GAME BOARD         |  
-+------+ exits on tie,      |  
-       | ENTER after a win, |  
-       | or press of 'q'    |  
-       +--------------------+  
+'''flow
+st=>start: Start
+op1=>operation: Main Menu
+op2=>operation: Number of players
+op3=>operation:	Who goes first
+op4=>operation: Board size
+op5=>operation: Confirm Game Start
+op6=>operation: Game Board
+cond1=>condition: begin or quit
+cond2=>condition: begin or menu or resize
+e=>end: Terminate
+
+st->op1->cond1
+cond1(begin)->op2
+cond1(quit)->e
+op2->op3->op4->op5->cond2
+cond2(begin)->op2
+cond2(menu)->op1
+cond2(resize)->op4
+
+'''
 
 ------------------
 WIN CHECK FUNCTION
