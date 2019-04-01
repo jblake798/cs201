@@ -52,53 +52,53 @@ for input at the same time during two player mode.
 STATE MACHINE FLOW
 ------------------
 
->       +-----------+
->       | MAIN MENU |  quit  +--------------+
->+----->+   begin   +------->+ EXIT PROGRAM |
->|      |   quit    |        +--------------+
->|      +-----+-----+
->|            |
->|            | begin
->|            v
->|      +-----+---------+
->|      | CHOOSE NUMBER |
->|      |   OF HUMAN    |
->|      |   PLAYERS     |
->|      +-----+---------+
->|            |
->|            |
->|            v
->|      +-----+--------+
->|      | CHOOSE WHICH |
->|      | PLAYER WILL  |
->|      |   GO FIRST   |
->|      +-----+--------+
->|            |
->|            |
->|            v
->|      +-----+---------+
->|      | SPECIFY BOARD |
->|      | SIZE TO PLAY  +<------------+
->|      |    GAME ON    |             |
->|      +-----+---------+             |
->|            |                       |
->|            |                       |
->|            v                       |
->|      +-----+--------------+        |
->| menu | CONFIRM GAME START | resize |
->+<-----+       begin        +--------+
->^      |       menu         |
->|      |       resize       |
->|      +-----+--------------+
->|            |
->|            | begin
->|            v
->|      +-----+--------------+
->|      | GAME BOARD         |
->+------+ exits on tie,      |
->       | ENTER after a win, |
->       | or press of 'q'    |
->       +--------------------+
+       +-----------+  
+       | MAIN MENU |  quit  +--------------+  
++----->+   begin   +------->+ EXIT PROGRAM |  
+|      |   quit    |        +--------------+  
+|      +-----+-----+  
+|            |  
+|            | begin  
+|            v  
+|      +-----+---------+  
+|      | CHOOSE NUMBER |  
+|      |   OF HUMAN    |  
+|      |   PLAYERS     |  
+|      +-----+---------+  
+|            |  
+|            |  
+|            v  
+|      +-----+--------+  
+|      | CHOOSE WHICH |  
+|      | PLAYER WILL  |  
+|      |   GO FIRST   |  
+|      +-----+--------+  
+|            |  
+|            |  
+|            v  
+|      +-----+---------+  
+|      | SPECIFY BOARD |  
+|      | SIZE TO PLAY  +<------------+  
+|      |    GAME ON    |             |  
+|      +-----+---------+             |  
+|            |                       |  
+|            |                       |  
+|            v                       |  
+|      +-----+--------------+        |  
+| menu | CONFIRM GAME START | resize |  
++<-----+       begin        +--------+  
+^      |       menu         |  
+|      |       resize       |  
+|      +-----+--------------+  
+|            |  
+|            | begin  
+|            v  
+|      +-----+--------------+  
+|      | GAME BOARD         |  
++------+ exits on tie,      |  
+       | ENTER after a win, |  
+       | or press of 'q'    |  
+       +--------------------+  
 
 ------------------
 WIN CHECK FUNCTION
