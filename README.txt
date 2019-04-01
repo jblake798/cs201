@@ -48,9 +48,34 @@ you can use either the ENTER key or 'E'. Having two options for keyboard
 input allows for two players to have their hands ready on the keyboard
 for input at the same time during two player mode.
 
+----------
+BOARD SIZE
+----------
+
+Although the game board can be set as any real size larger than 4x4, the
+program will display a warning if the terminal window is too small to display
+the board size chosen. For this reason, the option is given to resize the
+game board after this warning would be displayed.
+
+If a game board larger than can be displayed on the terminal is initiated,
+the program will also display a warning on the ncurses window telling the
+user that any display errors that are seen are being caused by the window
+being too small.
+
+Additionally, if the terminal window is resized during the game, the board will
+automatically re-center itself and display a window size warning if the window
+is resized to a size smaller than can accurately display the board.
+
 ------------------
 STATE MACHINE FLOW
 ------------------
+
+Basic state machine structure was originally based upon a sample ncurses
+based worms game on http://www.paulgriffiths.net/program/c/curses.php.
+Although this served as a loose base for the state machine, this state
+machine has been expanded far beyond the simple application in the example
+code. The following state diagram shows the program path prior to entering
+the game state.
 
        +-----------+  
        | MAIN MENU |  quit  +--------------+  
@@ -98,7 +123,17 @@ STATE MACHINE FLOW
 +------+ exits on tie,      |  
        | ENTER after a win, |  
        | or press of 'q'    |  
-       +--------------------+  
+       +--------------------+
+
+The game state machine swaps between two states: a player one state and
+a player two state (either a second user or the computer). The game prints
+the board, waits for the user to select a column to drop a token using
+the game cursor, then decides what to do with the input before either
+switching to the next player's turn or restarting the turn (in the case
+of a full column).
+
+Each turn state checks if the placed token creates a winning pattern and
+checks if the board has been completely filled (a tie state).
 
 ------------------
 WIN CHECK FUNCTION
