@@ -671,6 +671,7 @@ int main (void)
     case DRAW_CONDITION: /* IT'S A TIE! */
 
       mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "IT'S A TIE" );
+      mvwaddstr( gameWindow, 0, ( termCols - 31 ), "     MAIN MENU IN 2 SECONDS...");
       refresh();
 
       sleep(2);
@@ -737,8 +738,47 @@ int main (void)
 
       if ( state == INVALID_STATE ) break; // you should never get here. something went wrong.
 
-      // sleep for 2 seconds
-      sleep(2);
+      // print exit info
+      mvwaddstr( gameWindow, 0, ( termCols - 31 ), " PRESS ENTER TO RETURN TO MENU");
+      refresh();
+
+      // loop for user input
+      do {
+
+	key = getch();
+	
+	switch ( key ) {
+	  
+	case KEY_ENTER:
+	case '\n':
+	case 'e':
+	case 'E':
+	  key = 'e';
+	  break;
+	  	  
+	}
+
+	// resize window if terminal window changed
+	termRowsPrev = termRows;
+	termColsPrev = termRows;
+	UpdateTermSize( &termRows, &termCols );
+
+	// reprint if necessary
+	if ( ( termRows != termRowsPrev ) || ( termCols != termColsPrev ) ) {
+	  
+	  werase( gameWindow );
+	  
+	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
+	  mvwaddstr( gameWindow, 0, ( termCols - 31 ), " PRESS ENTER TO RETURN TO MENU");
+	  refresh();
+	}
+
+	// print warning if window too small
+	if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
+	  mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
+	
+      } while ( key != 'e' );
+
 
       // reset
       winner = NONE;
