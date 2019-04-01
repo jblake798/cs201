@@ -115,24 +115,30 @@ int negamax(int ** board, int * height, int move, int boardRows, int boardCols, 
       for ( int j = 0 ; j < boardCols ; j++ )
 	newHeight[j] = height[j];
 
+      // place token in next spot, creating next node in exploration tree
       if ( player == 1 ) newBoard[i][newHeight[i]] = 1;
       else if ( player == 2 ) newBoard[i][newHeight[i]] = 2;
       newHeight[i]++;
       move++;
 
+      // switch turn before passing into negamax recursive function
       if ( player == 2 ) player = 1;
       else if ( player == 1 ) player = 2;
 
+      // find score for current board setup
       int score = -negamax( newBoard, newHeight, move, boardRows, boardCols, player, -beta, -alpha );
       
-      // free function
+      // free boards
       for ( int j = 0 ; j < boardCols ; j++ )
 	free( newBoard[j] );
       free( newBoard );
 
       free( newHeight );
 
+      // return score if greater than beta 
       if ( score >= beta ) return score;
+
+      // if not greater, set alpha to score
       if ( score > alpha ) alpha = score;
       
     }
@@ -173,6 +179,7 @@ int AIDecision(int ** board, int * height, int boardRows, int boardCols, int mov
       for ( int j = 0 ; j < boardCols ; j++ )
 	newHeight[j] = height[j];
 
+      // place potential token decision
       newBoard[i][newHeight[i]] = 2;
       newHeight[i]++;
 

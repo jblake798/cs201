@@ -674,6 +674,7 @@ int main (void)
       mvwaddstr( gameWindow, 0, ( termCols - 31 ), "     MAIN MENU IN 2 SECONDS...");
       refresh();
 
+      // wait for two seconds
       sleep(2);
       
       state = CLOSE_GAME;
