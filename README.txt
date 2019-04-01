@@ -77,6 +77,8 @@ machine has been expanded far beyond the simple application in the example
 code. The following state diagram shows the program path prior to entering
 the game state.
 
+NOTE THAT THIS FLOWCHART DOES NOT DISPLAY ACCURATELY IN MARKDOWN
+
        +-----------+  
        | MAIN MENU |  quit  +--------------+  
 +----->+   begin   +------->+ EXIT PROGRAM |  
