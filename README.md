@@ -23,11 +23,11 @@ that recursively analyizes a predictive graph of the game to find an
 optimal move to play.
 
 The recursive function utilized by the computer to progressively search
-the predictive graph of the boards potential futures ( the negamax function )
+the predictive graph of the boards potential futures (the negamax function)
 was based upon the recursive function created in the tutorial found on
 http://blog.gamesolver.org/. This function recursively explores all
 potential game paths reachable from the current game state. The solver
-algorithm itself is capable of choosing the perfect move to win ( or tie )
+algorithm itself is capable of choosing the perfect move to win (or tie)
 every game.
 
 ----------
@@ -51,7 +51,7 @@ for input at the same time during two player mode.
 ------------------
 STATE MACHINE FLOW
 ------------------
-
+'''
        +-----------+
        | MAIN MENU |  quit  +--------------+
 +----->+   begin   +------->+ EXIT PROGRAM |
@@ -99,7 +99,7 @@ STATE MACHINE FLOW
        | ENTER after a win, |
        | or press of 'q'    |
        +--------------------+
-
+'''
 ------------------
 WIN CHECK FUNCTION
 ------------------
