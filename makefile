@@ -1,7 +1,7 @@
 all:
-	gcc -Wall -c helper.c
-	gcc -Wall -c board.c
-	gcc -Wall -o four main.c helper.o board.o -lncurses -lm
+	gcc -Wall -c helper.c -std=c11
+	gcc -Wall -c board.c -std=c11
+	gcc -Wall -o four main.c helper.o board.o -lncurses -lm -std=c11
 
 clean:
 	rm -r four

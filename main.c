@@ -787,17 +787,8 @@ void setupSignals (void)
   
   // set up signal handlers for exit interrupts
 
-  struct sigaction sa;
-  sa.sa_handler = handler;
-  sa.sa_flags   = 0;
-  sigemptyset(&sa.sa_mask);
-
-  sigaction(SIGTERM, &sa, NULL);
-  sigaction(SIGINT,  &sa, NULL);
-
-  // Ignore SIGTSTP
-
-  sa.sa_handler = SIG_IGN;
-  sigaction(SIGTSTP, &sa, NULL);
+  signal(SIGTERM, handler);
+  signal(SIGINT,  handler);
+  signal(SIGTSTP, handler);
 
 }
