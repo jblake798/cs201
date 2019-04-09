@@ -4,6 +4,9 @@ Jonathan Blake - 11704031
 Terminal Connect Four
 https://github.com/jblake798/cs201.git
 
+Demo Video
+https://youtu.be/jDQsoDm77yY
+
 -----
 ABOUT
 -----
