@@ -320,11 +320,12 @@ int main (void)
       // print board and infographics
       PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
-      refresh();
 
       // print warning if window too small
       if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
 	mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
+
+      refresh();
 
       // create variables for keeping track of game information
       PLAYER winner = NONE;
@@ -354,7 +355,6 @@ int main (void)
       cursor = 0;
       PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
-      refresh();
 
       // print player turn
       if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
@@ -374,7 +374,6 @@ int main (void)
 	case 'D':
 	  if ( cursor < ( boardCols - 1 ) ) ++cursor;
 	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
-	  refresh();
 	  break;
 
 	case KEY_LEFT:
@@ -382,7 +381,6 @@ int main (void)
 	case 'A':
 	  if ( cursor > 0 ) --cursor;
 	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
-	  refresh();
 	  break;
 
 	case KEY_DC:
@@ -418,12 +416,13 @@ int main (void)
 	  mvwaddstr( gameWindow, 0, 0, "PLAYER ONE TURN");
 	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
 	  
-	  refresh();
 	}
 
 	// print warning if window too small
 	if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
 	  mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
+
+	refresh();
 	
       } while ( key != 'e' );
 
@@ -433,9 +432,12 @@ int main (void)
 
       // check if winning move
       if ( IsWinningMove( board, height, boardRows, boardCols, cursor, 1 ) == 1 ) {
+	
 	board[cursor][height[cursor]] = 1;
+	
 	PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	refresh();
+	
 	winner = ONE;
 	state = WIN_CONDITION;
 	break;
@@ -492,12 +494,13 @@ int main (void)
       cursor = 0;
       PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
-      refresh();
 
       // print player turn
       if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
       mvwaddstr( gameWindow, 0, 0, "PLAYER TWO TURN");
       if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
+
+      refresh();
 
       // loop for user input
       do {
@@ -511,7 +514,6 @@ int main (void)
 	case 'D':
 	  if ( cursor < ( boardCols - 1 ) ) ++cursor;
 	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
-	  refresh();
 	  break;
 
 	case KEY_LEFT:
@@ -519,7 +521,6 @@ int main (void)
 	case 'A':
 	  if ( cursor > 0 ) --cursor;
 	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
-	  refresh();
 	  break;
 
 	case KEY_DC:
@@ -554,12 +555,13 @@ int main (void)
 	  mvwaddstr( gameWindow, 0, 0, "PLAYER TWO TURN");
 	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
 	  
-	  refresh();
 	}
 
 	// print warning if window too small
 	if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
 	  mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
+
+	refresh();
 	
       } while ( key != 'e' );
 
@@ -568,9 +570,12 @@ int main (void)
 
       // check if winning move
       if ( IsWinningMove( board, height, boardRows, boardCols, cursor, 2 ) == 1 ) {
+	
 	board[cursor][height[cursor]] = 2;
+	
 	PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	refresh();
+	
 	winner = TWO;
 	state = WIN_CONDITION;
 	break;
@@ -625,8 +630,6 @@ int main (void)
       cursor = 0;
       PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
       mvwaddstr( gameWindow, 0, ( termCols - 31 ), "OPTIONS: 'q'-> QUIT 'e'->ENTER");
-      
-      refresh();
 
       // print player turn
       if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
@@ -639,9 +642,12 @@ int main (void)
       
       // check if winning move ; break if so
       if ( IsWinningMove( board, height, boardRows, boardCols, decision, 2 ) == 1 ) {
+	
 	board[decision][height[decision]] = 2;
+	
 	PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, decision );
 	refresh();
+	
 	winner = TWO;
 	state = WIN_CONDITION;
 	break;
@@ -802,19 +808,15 @@ int main (void)
 
 	    }
 	  
-	    refresh();
-	  
 	  }
 
 	}
 
 	// print warning if window too small
-	if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) ) {
+	if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
 	  mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
-	  refresh();
-	}
 
-	
+	refresh();	
 	
       } while ( key != 'e' );
 
