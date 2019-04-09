@@ -238,8 +238,8 @@ int main (void)
 
     case GAME_CONFIG_CONFIRMSTART: /* GAME CONFIG STATE CONFIRM START */
 
-      printf("\nWould you like to BEGIN the game, EXIT to main menu, or RESIZE the board?");
-      printf("\nOptions: begin menu resize\n");
+      printf("\nWould you like to BEGIN the game, RESIZE the board, or EXIT to main menu?");
+      printf("\nOptions: begin resize exit\n");
       printf("Answer: ");
 
       state = INVALID_STATE;
@@ -253,13 +253,13 @@ int main (void)
 	if ( strcmp( input, "begin" ) == 0 ) {
 	  state = GAME_WINDOW_INIT;
 	  
-	} else if ( strcmp( input, "menu" ) == 0 ) {
-	  state = INITIALIZATION;
-	  printf("\nGoing to main menu...\n");
-
 	} else if ( strcmp( input, "resize" ) == 0 ) {
 	  state = GAME_CONFIG_BOARDSIZE;
 	  printf("\nGoing back to board size decision...\n");
+
+	} else if ( strcmp( input, "exit" ) == 0 ) {
+	  state = INITIALIZATION;
+	  printf("\nGoing to main menu...\n");
 	  
 	} else {
 	  if ( strlen(input) > 0 ) {
