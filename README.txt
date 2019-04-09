@@ -115,10 +115,10 @@ NOTE THAT THIS FLOWCHART DOES NOT DISPLAY ACCURATELY IN MARKDOWN
 |            |                       |  
 |            v                       |  
 |      +-----+--------------+        |  
-| menu | CONFIRM GAME START | resize |  
+| exit | CONFIRM GAME START | resize |  
 +<-----+       begin        +--------+  
-^      |       menu         |  
-|      |       resize       |  
+^      |       resize       |  
+|      |       exit         |  
 |      +-----+--------------+  
 |            |  
 |            | begin  
