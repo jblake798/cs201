@@ -695,7 +695,6 @@ int main (void)
 	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
 	  mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "PLAYER ONE WINS" );
 	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
-	  refresh();
 	  
 	} else if ( players == 2 ) {
 	  
@@ -705,7 +704,6 @@ int main (void)
 	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
 	  mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "PLAYER ONE WINS" );
 	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
-	  refresh();
 
 	}
 	
@@ -720,7 +718,6 @@ int main (void)
 	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
 	  mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "COMPUTER WINS" );
 	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
-	  refresh();
 	
 	} else if ( players == 2 ) {
 
@@ -731,11 +728,12 @@ int main (void)
 	  if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
 	  mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "PLAYER TWO WINS" );
 	  if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
-	  refresh();
 	  
 	} else state = INVALID_STATE;
 	
       } else state = INVALID_STATE;
+
+      refresh();
 
       if ( state == INVALID_STATE ) break; // you should never get here. something went wrong.
 
@@ -771,12 +769,52 @@ int main (void)
 	  
 	  PrintBoard( board, boardRows, boardCols, gameWindow, termRows, termCols, cursor );
 	  mvwaddstr( gameWindow, 0, ( termCols - 31 ), " PRESS ENTER TO RETURN TO MENU");
-	  refresh();
+
+	  if ( winner == ONE ) {
+	    
+	    if ( players == 1 ) {
+	      
+	      if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
+	      mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "PLAYER ONE WINS" );
+	      if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
+	      
+	    } else if ( players == 2 ) {
+
+	      if ( has_colors() == TRUE ) attron( COLOR_PAIR(1) );
+	      mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "PLAYER ONE WINS" );
+	      if ( has_colors() == TRUE ) attroff( COLOR_PAIR(1) );
+
+	    }
+
+	  } else if ( winner == TWO ) {
+
+	    if ( players == 1 ) {
+	      
+	      if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
+	      mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "COMPUTER WINS" );
+	      if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
+	      
+	    } else if ( players == 2 ) {
+
+	      if ( has_colors() == TRUE ) attron( COLOR_PAIR(2) );
+	      mvwaddstr( gameWindow, ( ( termRows / 2 ) + ( boardRows / 2 ) + 1 ), ( ( termCols / 2 ) - ( boardCols ) ), "PLAYER TWO WINS" );
+	      if ( has_colors() == TRUE ) attroff( COLOR_PAIR(2) );
+
+	    }
+	  
+	    refresh();
+	  
+	  }
+
 	}
 
 	// print warning if window too small
-	if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) )
+	if ( ( boardRows > ( termRows - 3 ) ) || ( boardCols > ( ceil( (double) termCols / 2 ) ) ) ) {
 	  mvwaddstr( gameWindow, 1, ( termCols - 17 ), "WINDOW TOO SMALL");
+	  refresh();
+	}
+
+	
 	
       } while ( key != 'e' );
 
